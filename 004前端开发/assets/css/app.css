@@ -1,0 +1,56 @@
+.app-dialog{position:fixed;inset:0;z-index:10001;display:grid;place-items:center;padding:16px;background:#21191d99;backdrop-filter:blur(5px)}
+.app-dialog[hidden]{display:none}
+.app-dialog__card{width:min(440px,100%);max-height:90vh;overflow:auto;padding:24px;border-radius:20px;background:#fffafb;box-shadow:0 20px 60px #21191d44;color:#21191d;font:14px/1.5 system-ui,-apple-system,"PingFang SC",sans-serif}
+.app-dialog__card h2{font-size:20px;margin:0 0 14px;color:#79243f}
+.app-dialog__card label{display:block;margin:12px 0 5px;font-weight:600}
+.app-dialog__card input,.app-dialog__card select,.app-dialog__card textarea{width:100%;padding:10px 12px;border:1px solid #dac0c4;border-radius:10px;background:white;color:#21191d;font:inherit}
+.app-dialog__card textarea{min-height:76px;resize:vertical}
+.app-dialog__actions{display:flex;justify-content:flex-end;gap:10px;margin-top:18px}
+.app-dialog__actions button{padding:10px 16px;border-radius:999px;border:1px solid #dac0c4;background:white;color:#79243f;cursor:pointer;font:inherit}
+.app-dialog__actions button[type=submit]{background:#ff8fab;border-color:#ff8fab;color:#3f0018;font-weight:700}
+.app-form-error{color:#b4233e;font-size:13px;min-height:20px;margin:6px 0}
+.app-category-selected{border:2px solid #f9616c!important;box-shadow:0 0 0 3px #f9616c22!important;background:#fff0f5!important;color:#79243f!important}
+#quick-entry-modal[data-entry-mode="income"] .app-category-selected{border-color:#186b4d!important;box-shadow:0 0 0 3px #a4f3cd99!important;background:#e5f8ed!important;color:#005138!important}
+#quick-entry-modal[data-entry-mode="income"] #btn-save-record{background:#a4f3cd!important;color:#005138!important}
+#quick-entry-modal[data-entry-mode="income"] #amount-input,#quick-entry-modal[data-entry-mode="income"] .font-numeric-hero.text-primary,#quick-entry-modal[data-entry-mode="income"] #current-category-label{color:#186b4d!important}
+#quick-entry-modal[data-entry-mode="income"] .h-1\.5{background:#a4f3cd!important}
+.app-date-wallet{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.app-date-wallet label{font-size:12px;color:#544245}
+.app-date-wallet input,.app-date-wallet select{width:100%;border:1px solid #dac0c4;border-radius:10px;padding:8px;background:#fff;color:#21191d}
+.app-profile-edit{padding:8px 14px;border-radius:999px;background:#ff8fab;color:#3f0018;font-weight:700;cursor:pointer;border:0;margin-top:12px}
+.app-trend-scroll{overflow-x:auto;overflow-y:visible;scroll-snap-type:x proximity;padding:8px 4px 14px;scrollbar-width:thin}
+.app-trend-chart{position:relative;display:flex;align-items:flex-end;gap:8px;height:230px;min-width:max-content;padding:30px 14px 28px;border-bottom:1px solid #dac0c4}
+.app-trend-alert{position:absolute;left:0;right:0;bottom:calc(28px + 250 / 400 * 170px);border-top:1px dashed #8a5010;pointer-events:none}
+.app-trend-alert span{position:absolute;left:4px;top:-21px;background:#fffafb;padding:1px 5px;color:#8a5010;font-size:11px;white-space:nowrap}
+.app-trend-day{position:relative;display:flex;flex:0 0 52px;flex-direction:column;align-items:center;justify-content:flex-end;height:198px;scroll-snap-align:start}
+.app-trend-day strong{font-size:11px;font-variant-numeric:tabular-nums;white-space:nowrap;line-height:18px}
+.app-trend-day i{display:block;width:30px;height:var(--bar-height);min-height:3px;border-radius:6px 6px 0 0;background:#ff8fab}
+.app-trend-day[data-over=true] i{background:#eba15c}
+.app-trend-day[data-selected=true] i{outline:3px solid #9b3f5a;outline-offset:2px}
+.app-trend-day[data-selected=true] small{font-weight:700;color:#79243f}
+.app-trend-day small{position:absolute;bottom:-22px;font-size:11px;white-space:nowrap}
+.app-trend-list{display:flex;gap:8px;overflow-x:auto;padding:10px 0;scrollbar-width:thin}
+.app-trend-list span{flex:0 0 105px;border-radius:10px;background:#fff0f5;padding:8px;font-size:12px;font-variant-numeric:tabular-nums;white-space:nowrap;text-align:center}
+.app-record-list{margin:16px 0;padding:18px;border-radius:16px;background:white;box-shadow:0 4px 16px #ff8fab26}
+.app-record-list h2{font-size:18px;margin:0 0 12px}
+.app-record-row{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-top:1px solid #f4e4e9}
+.app-record-row span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.app-period-capsule{position:relative}
+.app-period-trigger{border:0;background:transparent;cursor:pointer;min-height:36px;display:flex;align-items:center;color:#21191d;font:inherit}
+.app-period-trigger:hover{color:#9b3f5a}
+.app-period-trigger:focus-visible{outline:2px solid #9b3f5a;outline-offset:2px;border-radius:10px}
+.app-period-popover{position:absolute;right:0;top:calc(100% + 10px);z-index:10002;width:min(330px,calc(100vw - 32px));padding:16px;border:1px solid #f4e4e9;border-radius:16px;background:#fffafb;box-shadow:0 12px 36px #372e3233;color:#21191d;font:14px/1.5 system-ui,-apple-system,"PingFang SC",sans-serif}
+.app-period-popover[hidden]{display:none}
+.app-period-popover h3{margin:0 0 10px;font-size:16px;color:#79243f}
+.app-period-fields{display:grid;grid-template-columns:1.1fr .8fr .8fr;gap:8px}
+.app-period-fields label{font-size:12px;color:#544245}
+.app-period-fields select{width:100%;margin-top:4px;padding:8px 6px;border:1px solid #dac0c4;border-radius:9px;background:white;color:#21191d;font:inherit}
+.app-period-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}
+.app-period-actions button{border:1px solid #dac0c4;border-radius:999px;padding:8px 12px;background:#fff;color:#79243f;cursor:pointer;font:inherit}
+.app-period-actions button:last-child{background:#ff8fab;border-color:#ff8fab;color:#3f0018;font-weight:700}
+.app-care .font-body-sm{font-size:15px!important}
+.app-care .font-label-md{font-size:15px!important}
+.app-care .font-label-lg{font-size:17px!important}
+.app-avatar{object-fit:cover;border-radius:50%}
+nav [aria-current=page][data-path]{background:#fff0f5!important;color:#9b3f5a!important;font-weight:700!important;box-shadow:0 2px 10px #ff8fab33}
+@media(max-width:767px){.app-date-wallet{grid-template-columns:1fr}.app-dialog__card{padding:18px}.app-record-list{margin:12px}}

@@ -1,0 +1,569 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><meta content="web_dashboard" name="shell-type"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"><link href="https://fonts.googleapis.com" rel="preconnect"><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;family=Quicksand:wght@500;600;700&amp;display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}
+</style><script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script><script id="tailwind-config">tailwind.config = {"darkMode":"class","theme":{"extend":{"colors":{"surface-container-lowest":"#ffffff","background":"#fff8f8","tertiary-fixed":"#ffdcc1","outline-variant":"#dac0c4","error-container":"#ffdad6","on-secondary-fixed-variant":"#005138","surface-container-highest":"#eedfe4","tertiary-container":"#eba15c","on-primary-container":"#79243f","on-error-container":"#93000a","on-secondary-fixed":"#002114","secondary":"#186b4d","primary-fixed":"#ffd9e0","surface-dim":"#e5d6db","primary-fixed-dim":"#ffb1c2","primary":"#9b3f5a","error":"#ba1a1a","inverse-surface":"#372e32","surface-container-low":"#fff0f5","inverse-on-surface":"#fcedf2","secondary-fixed":"#a4f3cd","surface-bright":"#fff8f8","tertiary":"#8a5010","surface-container":"#f9eaef","on-tertiary-fixed":"#2e1600","on-primary-fixed":"#3f0018","on-background":"#21191d","on-primary-fixed-variant":"#7d2742","tertiary-fixed-dim":"#ffb877","on-surface-variant":"#544245","secondary-container":"#a4f3cd","on-secondary-container":"#207153","on-secondary":"#ffffff","on-tertiary":"#ffffff","surface-container-high":"#f4e4e9","on-tertiary-container":"#673800","surface-variant":"#eedfe4","surface-tint":"#9b3f5a","on-surface":"#21191d","secondary-fixed-dim":"#89d6b1","outline":"#877275","on-primary":"#ffffff","primary-container":"#ff8fab","surface":"#fff8f8","inverse-primary":"#ffb1c2","on-error":"#ffffff","on-tertiary-fixed-variant":"#6c3a00"},"borderRadius":{"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},"spacing":{"space-lg":"1.5rem","space-md":"1rem","gutter":"1.5rem","space-sm":"0.5rem","space-xs":"0.25rem","space-xl":"2.5rem","margin":"2rem"},"fontFamily":{"label-md":["Quicksand"],"headline-sm":["Quicksand"],"display-lg-mobile":["Quicksand"],"body-sm":["Plus Jakarta Sans"],"numeric-table":["Quicksand"],"body-md":["Plus Jakarta Sans"],"body-lg":["Plus Jakarta Sans"],"numeric-hero":["Quicksand"],"display-lg":["Quicksand"],"headline-md":["Quicksand"],"headline-lg":["Quicksand"],"label-lg":["Quicksand"]},"fontSize":{"label-md":["12px",{"lineHeight":"16px","fontWeight":"600"}],"headline-sm":["18px",{"lineHeight":"26px","fontWeight":"600"}],"display-lg-mobile":["30px",{"lineHeight":"38px","fontWeight":"700"}],"body-sm":["12px",{"lineHeight":"18px","fontWeight":"400"}],"numeric-table":["14px",{"lineHeight":"20px","fontWeight":"600"}],"body-md":["14px",{"lineHeight":"20px","fontWeight":"400"}],"body-lg":["16px",{"lineHeight":"24px","fontWeight":"400"}],"numeric-hero":["32px",{"lineHeight":"38px","fontWeight":"700"}],"display-lg":["40px",{"lineHeight":"48px","letterSpacing":"-0.02em","fontWeight":"700"}],"headline-md":["22px",{"lineHeight":"30px","fontWeight":"600"}],"headline-lg":["28px",{"lineHeight":"36px","fontWeight":"600"}],"label-lg":["14px",{"lineHeight":"20px","fontWeight":"600"}]}}}};</script><title>我的 · 每日记账本原型</title><meta name="robots" content="noindex, nofollow"><link rel="stylesheet" href="../assets/css/prototype-navigation.css"><link rel="stylesheet" href="../assets/css/app.css"></head><body class="bg-surface font-body-md text-on-surface antialiased min-h-screen transition-all duration-200"><aside class="fixed left-0 top-0 h-full w-[260px] bg-surface-container-lowest z-50 flex flex-col justify-between shadow-[0_4px_24px_rgba(255,143,171,0.12)]"><div class="flex flex-col"><div class="p-space-lg flex items-center gap-3"><img alt="翔翔记账 Logo" class="h-8 w-auto object-contain cursor-pointer" onclick="showToast('🌸 翔翔记账 · 治愈你的每一笔生活')" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDdoUn0dovWB1eBR3TCq0D0xtC3q2_JHN0Y9EEVZMRHos2bBDj85k8wvMxtIqrbUKRb-qvEE_7hDgZoIf28n7xvK4b98I7lKEoJmzmUip92atJZ5bI77ZkUNjVObxk7rwrhfr8OuH7Rgw6ehR4tVRkLIfciaSjkJ-oUzhnRrJykxwUGihK7QMkC_wTAjMD1GL2muPF7I8lKIPqax1nFGHRCvj1Dk_dts7XC2T5xloU"><div class="flex flex-col"><span class="font-headline-sm text-headline-sm text-primary font-bold leading-tight">翔翔记账</span><span class="font-body-sm text-body-sm text-on-surface-variant">像写手账一样记账</span></div></div><div class="px-space-md mb-space-md"><button class="w-full flex items-center justify-center gap-2 py-2.5 px-space-md bg-primary-container text-on-primary-container rounded-full shadow-[0_4px_16px_rgba(255,143,171,0.25)] hover:bg-primary hover:text-on-primary transition-all duration-200 transform hover:-translate-y-0.5 active:translate-y-0 font-label-lg text-label-lg font-bold" id="btn-add-record" onclick="openRecordModal()" type="button"><span class="material-symbols-outlined text-[20px]">add_circle</span><span>记一笔</span></button></div><nav class="flex flex-col gap-1.5 px-space-md" data-active-classes="bg-surface-container-low text-primary font-bold shadow-[0_2px_10px_rgba(255,143,171,0.12)]" id="sidebar-nav"><a class="nav-item flex items-center gap-3 px-space-md py-2.5 rounded-xl text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-label-lg text-label-lg transition-all duration-150" data-path="bills" href="javascript:void(0)" onclick="handleNavClick(this, '首页流水')"><span class="material-symbols-outlined text-[20px]">calendar_month</span><span>首页流水</span></a><a class="nav-item flex items-center gap-3 px-space-md py-2.5 rounded-xl text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-label-lg text-label-lg transition-all duration-150" data-path="stats" href="javascript:void(0)" onclick="handleNavClick(this, '统计报表')"><span class="material-symbols-outlined text-[20px]">pie_chart</span><span>统计报表</span></a><a class="nav-item flex items-center gap-3 px-space-md py-2.5 rounded-xl text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-label-lg text-label-lg transition-all duration-150" data-path="budget" href="javascript:void(0)" onclick="handleNavClick(this, '预算管理')"><span class="material-symbols-outlined text-[20px]">account_balance_wallet</span><span>预算管理</span></a><a aria-current="page" class="nav-item flex items-center gap-3 px-space-md py-2.5 rounded-xl transition-all duration-150 bg-surface-container-low text-primary font-bold shadow-[0_2px_10px_rgba(255,143,171,0.12)]" data-path="profile" href="javascript:void(0)" onclick="handleNavClick(this, '个人主页')"><span class="material-symbols-outlined text-[20px]">person_heart</span><span>个人主页</span></a></nav></div><div class="p-space-md flex flex-col gap-space-sm"><div class="flex items-center gap-3 p-2 bg-surface-container-lowest rounded-xl shadow-[0_2px_8px_rgba(255,143,171,0.08)] hover:bg-surface-container-low transition-colors cursor-pointer" id="sidebar-user-card" onclick="showToast('🌸 桃桃酱正在温柔陪伴你记账呢')"><div class="w-9 h-9 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container font-headline-sm text-headline-sm" id="sidebar-user-avatar">桃</div><div class="flex flex-col min-w-0 flex-1"><span class="font-label-md text-label-md text-on-surface truncate" id="sidebar-user-name">桃桃酱</span><span class="font-body-sm text-body-sm text-on-surface-variant truncate" id="sidebar-user-status">记录生活 · 温柔相伴</span></div><span class="material-symbols-outlined text-outline-variant text-[18px]">favorite</span></div></div></aside><div class="pl-[260px]"><header class="fixed top-0 left-[260px] right-0 h-16 bg-surface/80 backdrop-blur-xl z-40 shadow-[0_1px_8px_rgba(255,143,171,0.08)] flex items-center justify-between px-space-xl"><div class="flex items-center gap-space-md"><img alt="翔翔记账 Logo" class="h-8 w-auto object-contain cursor-pointer" onclick="showToast('🍑 翔翔记账 · 记录生活好日常')" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDdoUn0dovWB1eBR3TCq0D0xtC3q2_JHN0Y9EEVZMRHos2bBDj85k8wvMxtIqrbUKRb-qvEE_7hDgZoIf28n7xvK4b98I7lKEoJmzmUip92atJZ5bI77ZkUNjVObxk7rwrhfr8OuH7Rgw6ehR4tVRkLIfciaSjkJ-oUzhnRrJykxwUGihK7QMkC_wTAjMD1GL2muPF7I8lKIPqax1nFGHRCvj1Dk_dts7XC2T5xloU"><div class="relative flex items-center w-72"><span class="material-symbols-outlined absolute left-3 text-outline text-[18px]">search</span><input class="w-full pl-9 pr-3 py-1.5 rounded-full bg-surface-container-lowest text-on-surface placeholder:text-outline-variant font-body-sm text-body-sm focus:outline-none focus:ring-2 focus:ring-primary-container shadow-[0_2px_8px_rgba(255,143,171,0.06)]" id="global-search" oninput="handleSearch(this.value)" placeholder="搜索手账随笔、标签或金额..." type="text"></div></div><div class="flex items-center gap-space-md"><button class="w-9 h-9 rounded-full bg-surface-container-low hover:bg-surface-container flex items-center justify-center text-on-surface-variant hover:text-on-surface transition-colors relative" onclick="showToast('🔔 愿你的今天像手账一样温暖美好！')" title="消息通知" type="button"><span class="material-symbols-outlined text-[20px]">notifications</span><span class="absolute top-2 right-2 w-2 h-2 rounded-full bg-primary-container" id="notif-dot"></span></button><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center cursor-pointer transition-transform hover:scale-105" id="header-user-avatar" onclick="showToast('🍑 桃桃酱的专属手账空间')" title="用户中心"><span class="material-symbols-outlined text-on-primary text-[18px]" id="header-user-icon">person</span></div></div></header><main class="relative pt-16 bg-surface"><div class="flex flex-col w-full">
+<!-- 柔和治愈背景发光光晕 (装饰性无边框层) -->
+<div class="relative w-full px-space-lg py-space-md max-w-[1240px] mx-auto flex flex-col gap-space-lg">
+<!-- 顶部治愈手账标头区域 (Header) -->
+<header class="flex flex-col md:flex-row md:items-end justify-between gap-space-md pt-2">
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-2">
+<span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-primary-fixed text-primary font-headline-sm text-headline-sm">🌸</span>
+<span class="font-label-md text-label-md text-primary font-bold tracking-wider uppercase">Peach Journal · My Space</span>
+</div>
+<h1 class="font-headline-lg text-headline-lg text-on-surface font-bold tracking-tight">个人主页与手账设置</h1>
+<p class="font-body-md text-body-md text-on-surface-variant">记录生活的每一份小确幸 · 个人偏好与手账风格</p>
+</div>
+</header>
+<!-- 核心区块一：用户主页卡片与手账偏好面板 -->
+<section class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg items-stretch">
+<!-- 用户身份与手账徽章卡 (7 Cols) -->
+<div class="lg:col-span-7 bg-surface-container-lowest rounded-3xl p- space-lg p-6 md:p-8 shadow-[0_4px_24px_rgba(255,143,171,0.12)] flex flex-col justify-between relative overflow-hidden"><div class="absolute -right-6 -bottom-6 w-36 h-36 rounded-full bg-primary-fixed/30 blur-2xl pointer-events-none"></div>
+<div class="flex flex-col sm:flex-row items-start sm:items-center gap-5 z-10">
+  <!-- Standardized cute peach avatar -->
+  <div class="relative flex-shrink-0">
+    <div class="w-20 h-20 rounded-full bg-surface-container-low p-1 shadow-[0_4px_16px_rgba(255,143,171,0.2)] flex items-center justify-center overflow-hidden">
+      <img class="w-full h-full rounded-full object-cover" data-alt="Peach avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCcCMDym5h5s3T7DPlobeX9Kzrs4glr5pYR01lWn3tslEYUpYPu-WcgP8eNQgsQV0WiD0gO8z90srQmt1wGcJ1gK_7QJZzOYuuspTJYJLvwhQympsioBqLAOaYm4aoVh3Im2pfAAg64la4aeiNY-acg9JxIj2VCNYseRvGV0Uza_lX2-aHKRmAcJCizmaJ7wf_zjJe-uefVc95jzWtku5A2lyu8v8HjWHcDGimGQ8Q">
+    </div>
+  </div>
+  <div class="flex flex-col min-w-0">
+    <div class="flex items-center gap-2.5 flex-wrap">
+      <h2 class="font-headline-md text-headline-md text-on-surface font-bold tracking-tight">桃桃酱</h2>
+      <span class="font-body-sm text-body-sm text-on-surface-variant font-mono">@taoxi_2026</span>
+      <span class="inline-flex items-center gap-1 px-3 py-0.5 rounded-full bg-primary text-on-primary font-label-md text-label-md shadow-sm">
+        <span class="material-symbols-outlined text-[14px]">verified</span>
+        <span>已认证手友</span>
+      </span>
+    </div>
+    <p class="font-body-md text-body-md text-on-surface-variant mt-2 leading-relaxed">
+      认真记录每一笔生活，把普通的日子过成温柔浪漫的诗篇。
+    </p>
+  </div>
+</div>
+<!-- 底部简洁状态条 -->
+<div class="mt-6 pt-4 border-t border-surface-container-low flex items-center justify-between flex-wrap gap-2 text-[12px] text-on-surface-variant z-10">
+  <div class="flex items-center gap-2">
+    <span class="w-2 h-2 rounded-full bg-secondary"></span>
+    <span>记账状态：连续打卡 42 天 🌿</span>
+  </div>
+  <div class="flex items-center gap-1 text-primary font-label-md">
+    <span class="material-symbols-outlined text-[16px]">military_tech</span>
+    <span>手账印章：42 枚</span>
+  </div>
+</div></div>
+<!-- 账号与手账外观偏好 (5 Cols) -->
+<div class="lg:col-span-5 bg-surface-container-lowest rounded-3xl p-6 md:p-8 shadow-[0_4px_24px_rgba(255,143,171,0.12)] flex flex-col justify-between">
+<div class="flex flex-col gap-4">
+<div class="flex items-center justify-between pb-1"><div class="flex items-center gap-2"><span class="material-symbols-outlined text-primary text-[22px]">manage_accounts</span><h3 class="font-headline-sm text-headline-sm text-on-surface font-bold">账号与安全设置</h3></div><span class="px-2.5 py-0.5 rounded-full bg-secondary-container text-secondary text-[11px] font-bold">状态正常</span></div>
+<!-- 纸张风格选项 -->
+
+<ul class="flex flex-col gap-2 mt-2">
+<li class="flex items-center justify-between p-3 rounded-2xl bg-surface-container-low hover:bg-surface-container transition-colors cursor-pointer" onclick="openChangePasswordModal()">
+<div class="flex items-center gap-2.5">
+<span class="material-symbols-outlined text-outline text-[20px]">lock_reset</span>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface font-bold">修改登录密码</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">定期更新保护手账小金库</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-outline-variant text-[18px]">chevron_right</span>
+</li>
+<li class="flex items-center justify-between p-3 rounded-2xl bg-surface-container-low hover:bg-surface-container transition-colors cursor-pointer" onclick="confirmLogoutAction()">
+<div class="flex items-center gap-2.5">
+<span class="material-symbols-outlined text-tertiary text-[20px]">logout</span>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface font-bold">退出当前账号</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">随时欢迎再次回到手账空间</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-outline-variant text-[18px]">chevron_right</span>
+</li>
+</ul>
+</div>
+</div>
+</section>
+<!-- 核心区块二：手账资产与统计总览小确幸面板 (3 Big Metric Cards) -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-space-lg">
+<!-- 指标卡 1：累计记账天数 -->
+<div class="relative bg-surface-container-lowest rounded-3xl p-space-lg shadow-[0_4px_20px_rgba(255,143,171,0.12)] flex flex-col justify-between overflow-hidden group hover:-translate-y-1 transition-all duration-200">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-on-surface-variant font-bold">累计打卡坚持</span>
+<span class="w-8 h-8 rounded-full bg-primary-fixed flex items-center justify-center text-primary text-[18px]">📅</span>
+</div>
+<div class="my-3 flex items-baseline gap-2">
+<span class="font-numeric-hero text-numeric-hero text-primary font-bold">42</span>
+<span class="font-headline-sm text-headline-sm text-on-surface">天</span>
+</div>
+<div class="flex items-center gap-2 pt-2">
+<span class="inline-flex items-center gap-1 text-[12px] font-bold text-secondary bg-secondary-container px-2 py-0.5 rounded-full">
+<span class="material-symbols-outlined text-[13px]">trending_up</span>
+<span>超越 92% 手友</span>
+</span>
+<span class="text-[12px] text-on-surface-variant">小花贴纸奖励已领取 🌸</span>
+</div>
+</div>
+<!-- 指标卡 2：累计记录流水账单 -->
+<div class="relative bg-surface-container-lowest rounded-3xl p-space-lg shadow-[0_4px_20px_rgba(255,143,171,0.12)] flex flex-col justify-between overflow-hidden group hover:-translate-y-1 transition-all duration-200">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-on-surface-variant font-bold">手账明细条目</span>
+<span class="w-8 h-8 rounded-full bg-surface-container-low flex items-center justify-center text-primary text-[18px]">📝</span>
+</div>
+<div class="my-3 flex items-baseline gap-2">
+<span class="font-numeric-hero text-numeric-hero text-on-surface font-bold">156</span>
+<span class="font-headline-sm text-headline-sm text-on-surface">笔</span>
+</div>
+<div class="flex items-center justify-between text-[12px] pt-2">
+<span class="text-on-surface-variant">支出 138 笔 · 收入 18 笔</span>
+<span class="text-secondary font-bold">收支健康平衡</span>
+</div>
+</div>
+<!-- 指标卡 3：存钱小金库已积攒 -->
+<div class="relative bg-surface-container-lowest rounded-3xl p-space-lg shadow-[0_4px_20px_rgba(255,143,171,0.12)] flex flex-col justify-between overflow-hidden group hover:-translate-y-1 transition-all duration-200">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-on-surface-variant font-bold">存钱小金库结余</span>
+<span class="w-8 h-8 rounded-full bg-secondary-container flex items-center justify-center text-secondary text-[18px]">💰</span>
+</div>
+<div class="my-3 flex items-baseline gap-1">
+<span class="font-headline-md text-headline-md text-secondary font-bold">¥</span>
+<span class="font-numeric-hero text-numeric-hero text-secondary font-bold tracking-tight">9,017.50</span>
+</div>
+<div class="flex items-center justify-between text-[12px] pt-2">
+<span class="text-on-surface-variant">今年梦想小金库目标</span>
+<span class="text-primary font-bold bg-primary-fixed/50 px-2 py-0.5 rounded-full">已达成 112% 🎉</span>
+</div>
+</div>
+</section>
+<!-- 核心区块三：手账心语与陪伴卡片 -->
+
+<!-- 底部手账暖心小注与品牌落款 -->
+<footer class="pt-space-md pb-space-lg flex flex-col items-center justify-center text-center gap-2"><div class="text-[12px] text-outline font-mono py-4">
+Version 1.0.1 · © 2026 翔翔记账 · All rights reserved
+</div></footer>
+</div>
+<!-- ========================= 本页面内置模态交互弹窗 ========================= -->
+<!-- 修改密码手账小弹窗 -->
+<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm transition-all duration-300 opacity-0 pointer-events-none" id="modal-change-pwd">
+<div class="w-full max-w-[420px] mx-4 bg-surface-container-lowest rounded-3xl p-6 shadow-[0_20px_50px_rgba(255,143,171,0.35)] border-0 transform scale-95 transition-all duration-300 relative" id="modal-change-pwd-box">
+<div class="flex items-center justify-between pb-3">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[22px]">key</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-bold">修改登录密码</h3>
+</div>
+<button class="w-8 h-8 rounded-full bg-surface-container-low hover:bg-surface-container flex items-center justify-center text-on-surface-variant transition-colors cursor-pointer" onclick="closeChangePasswordModal()" type="button">
+<span class="material-symbols-outlined text-[18px]">close</span>
+</button>
+</div>
+<div class="flex flex-col gap-3 mt-3">
+<div class="flex flex-col gap-1">
+<label class="text-[12px] font-label-md text-on-surface-variant" for="input-old-pwd">原密码</label>
+<input class="px-3 py-2 rounded-xl bg-surface-container-low text-on-surface font-body-sm text-body-sm outline-none focus:ring-2 focus:ring-primary-container" id="input-old-pwd" placeholder="请输入当前旧密码" type="password">
+</div>
+<div class="flex flex-col gap-1">
+<label class="text-[12px] font-label-md text-on-surface-variant" for="input-new-pwd">新密码 (8位以上，包含字母与数字)</label>
+<input class="px-3 py-2 rounded-xl bg-surface-container-low text-on-surface font-body-sm text-body-sm outline-none focus:ring-2 focus:ring-primary-container" id="input-new-pwd" placeholder="请输入全新密码" type="password">
+</div>
+</div>
+<div class="flex items-center justify-end gap-3 mt-6 pt-2">
+<button class="px-4 py-2 rounded-full text-on-surface-variant hover:text-on-surface text-label-md font-bold transition-all" onclick="closeChangePasswordModal()" type="button">取消</button>
+<button class="px-6 py-2 rounded-full bg-primary-container text-on-primary-container hover:bg-primary hover:text-on-primary text-label-md font-bold transition-all shadow-md" onclick="submitPasswordChange()" type="button">确认更新</button>
+</div>
+</div>
+</div>
+<!-- 脚本驱动逻辑 -->
+<script>
+    // 确保当前页面加载时将侧边栏左侧导航高亮切换到“个人主页”
+    (function highlightProfileNavItem() {
+      const navLinks = document.querySelectorAll('#sidebar-nav .nav-item');
+      navLinks.forEach(link => {
+        const path = link.getAttribute('data-path');
+        if (path === 'profile') {
+          link.className = "nav-item flex items-center gap-3 px-space-md py-2.5 rounded-xl transition-all duration-150 bg-surface-container-low text-primary font-bold shadow-[0_2px_10px_rgba(255,143,171,0.12)]";
+          link.setAttribute('aria-current', 'page');
+        } else {
+          link.className = "nav-item flex items-center gap-3 px-space-md py-2.5 rounded-xl text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-label-lg text-label-lg transition-all duration-150";
+          link.removeAttribute('aria-current');
+        }
+      });
+    })();
+
+    // 切换手账纸张风格
+    function selectPaperTheme(themeKey, btn) {
+      const buttons = document.querySelectorAll('.paper-btn');
+      buttons.forEach(b => {
+        b.className = "paper-btn flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl border-2 border-transparent bg-surface-container-low hover:bg-surface-container text-on-surface font-label-md text-label-md transition-all";
+      });
+      btn.className = "paper-btn flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl border-2 border-primary bg-primary-fixed/40 text-primary font-label-md text-label-md font-bold transition-all";
+      
+      const themeNames = {
+        'grid': '奶白网格',
+        'dots': '蜜桃粉点',
+        'blank': '柔和空白'
+      };
+      if (typeof showToast === 'function') {
+        showToast(`已更换手账纸张风格为：${themeNames[themeKey] || '经典'} 🌸`);
+      }
+    }
+
+    // 模态弹窗显隐控制器
+    function openModal(modalId, boxId) {
+      const m = document.getElementById(modalId);
+      const b = document.getElementById(boxId);
+      if (!m || !b) return;
+      m.classList.remove('opacity-0', 'pointer-events-none');
+      m.classList.add('opacity-100');
+      b.classList.remove('scale-95');
+      b.classList.add('scale-100');
+    }
+
+    function closeModal(modalId, boxId) {
+      const m = document.getElementById(modalId);
+      const b = document.getElementById(boxId);
+      if (!m || !b) return;
+      b.classList.remove('scale-100');
+      b.classList.add('scale-95');
+      m.classList.remove('opacity-100');
+      m.classList.add('opacity-0', 'pointer-events-none');
+    }
+
+    // 修改密码相关
+    function openChangePasswordModal() {
+      openModal('modal-change-pwd', 'modal-change-pwd-box');
+    }
+    function closeChangePasswordModal() {
+      closeModal('modal-change-pwd', 'modal-change-pwd-box');
+    }
+    function submitPasswordChange() {
+      const n = document.getElementById('input-new-pwd').value;
+      if (!n || n.length < 6) {
+        if (typeof showToast === 'function') showToast('新密码长度需大于6位哦 🌸', 'warning');
+        return;
+      }
+      closeChangePasswordModal();
+      if (typeof showToast === 'function') showToast('🔐 登录密码已成功更新！请妥善保管凭据');
+    }
+
+    // 退出登录
+    function confirmLogoutAction() {
+      if (confirm('确定要退出当前桃桃账号吗？\n您的所有手账记录均会完整保留。')) {
+        if (typeof showToast === 'function') {
+          showToast('已安全退出账号，期待与桃桃酱再次相伴 🌸');
+        }
+      }
+    }
+
+    // 点击蒙层关闭
+    const pwdModal = document.getElementById('modal-change-pwd');
+    if (pwdModal) {
+      pwdModal.addEventListener('click', (e) => {
+        if (e.target.id === 'modal-change-pwd') {
+          closeChangePasswordModal();
+        }
+      });
+    }
+</script>
+</div></main></div>
+<!-- ========================= 记账弹窗体系 ========================= -->
+<!-- 手账式快速记账弹窗 -->
+<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm transition-all duration-300 opacity-0 pointer-events-none" id="modal-record">
+<div class="w-full max-w-[460px] mx-4 bg-surface-container-lowest rounded-3xl p-6 shadow-[0_20px_50px_rgba(255,143,171,0.35)] border border-primary-fixed transform scale-95 transition-all duration-300 relative" id="modal-record-content">
+<!-- Header -->
+<div class="flex items-center justify-between pb-3 border-b border-surface-container-low">
+<div class="flex items-center gap-2">
+<span class="text-2xl">✨</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-bold">手账记一笔</h3>
+</div>
+<button class="w-8 h-8 rounded-full bg-surface-container-low hover:bg-surface-container flex items-center justify-center text-outline-variant hover:text-on-surface transition-colors" onclick="closeRecordModal()" type="button">
+<span class="material-symbols-outlined text-[18px]">close</span>
+</button>
+</div>
+<!-- 收支切换 Tab -->
+<div class="flex items-center bg-surface-container-low p-1 rounded-full mt-4" id="record-type-toggle">
+<button class="flex-1 py-1.5 rounded-full bg-primary text-on-primary font-label-md text-label-md font-bold transition-all text-center" id="type-btn-expense" onclick="switchRecordType('expense')" type="button">
+支出 💸
+</button>
+<button class="flex-1 py-1.5 rounded-full text-on-surface-variant hover:text-on-surface font-label-md text-label-md font-bold transition-all text-center" id="type-btn-income" onclick="switchRecordType('income')" type="button">
+收入 💰
+</button>
+</div>
+<!-- 金额输入框 -->
+<div class="mt-4 bg-surface-container-low/70 rounded-2xl p-4 flex flex-col gap-1 border border-transparent focus-within:border-primary/40 transition-colors">
+<label class="text-[12px] font-label-md text-on-surface-variant" for="record-amount">记录金额</label>
+<div class="flex items-baseline gap-1">
+<span class="text-2xl font-bold text-primary font-numeric-hero" id="amount-prefix">-¥</span>
+<input autofocus="" class="w-full bg-transparent text-3xl font-numeric-hero font-bold text-on-surface outline-none placeholder:text-outline-variant" id="record-amount" placeholder="0.00" step="0.01" type="number">
+</div>
+</div>
+<!-- 分类快捷选择 -->
+<div class="mt-4 flex flex-col gap-2">
+<div class="flex items-center justify-between">
+<span class="text-[12px] font-label-md text-on-surface-variant">选择手账分类</span>
+<span class="text-[11px] text-primary cursor-pointer hover:underline" id="current-cat-tag">当前：餐饮美食 🍜</span>
+</div>
+<div class="grid grid-cols-4 gap-2" id="category-grid">
+<button class="cat-pill flex flex-col items-center gap-1 p-2 rounded-2xl bg-primary-fixed/50 text-primary border border-primary text-center transition-all cursor-pointer" data-category="餐饮美食" data-icon="🍜" onclick="selectCategory('餐饮美食', '🍜', this)" type="button">
+<span class="text-xl">🍜</span>
+<span class="text-[11px] font-bold">餐饮美食</span>
+</button>
+<button class="cat-pill flex flex-col items-center gap-1 p-2 rounded-2xl bg-surface-container-low hover:bg-surface-container text-on-surface border border-transparent text-center transition-all cursor-pointer" data-category="交通出行" data-icon="🚌" onclick="selectCategory('交通出行', '🚌', this)" type="button">
+<span class="text-xl">🚌</span>
+<span class="text-[11px]">交通出行</span>
+</button>
+<button class="cat-pill flex flex-col items-center gap-1 p-2 rounded-2xl bg-surface-container-low hover:bg-surface-container text-on-surface border border-transparent text-center transition-all cursor-pointer" data-category="日常购物" data-icon="🛍️" onclick="selectCategory('日常购物', '🛍️', this)" type="button">
+<span class="text-xl">🛍️</span>
+<span class="text-[11px]">日常购物</span>
+</button>
+<button class="cat-pill flex flex-col items-center gap-1 p-2 rounded-2xl bg-surface-container-low hover:bg-surface-container text-on-surface border border-transparent text-center transition-all cursor-pointer" data-category="休闲娱乐" data-icon="🎮" onclick="selectCategory('休闲娱乐', '🎮', this)" type="button">
+<span class="text-xl">🎮</span>
+<span class="text-[11px]">休闲娱乐</span>
+</button>
+<button class="cat-pill flex flex-col items-center gap-1 p-2 rounded-2xl bg-surface-container-low hover:bg-surface-container text-on-surface border border-transparent text-center transition-all cursor-pointer" data-category="日用杂项" data-icon="📌" onclick="selectCategory('日用杂项', '📌', this)" type="button">
+<span class="text-xl">📌</span>
+<span class="text-[11px]">日用杂项</span>
+</button>
+<button class="cat-pill flex flex-col items-center gap-1 p-2 rounded-2xl bg-surface-container-low hover:bg-surface-container text-on-surface border border-transparent text-center transition-all cursor-pointer" data-category="美妆穿搭" data-icon="💄" onclick="selectCategory('美妆穿搭', '💄', this)" type="button">
+<span class="text-xl">💄</span>
+<span class="text-[11px]">美妆穿搭</span>
+</button>
+<button class="cat-pill flex flex-col items-center gap-1 p-2 rounded-2xl bg-surface-container-low hover:bg-surface-container text-on-surface border border-transparent text-center transition-all cursor-pointer" data-category="学习成长" data-icon="📚" onclick="selectCategory('学习成长', '📚', this)" type="button">
+<span class="text-xl">📚</span>
+<span class="text-[11px]">学习成长</span>
+</button>
+<button class="cat-pill flex flex-col items-center gap-1 p-2 rounded-2xl bg-surface-container-low hover:bg-surface-container text-on-surface border border-transparent text-center transition-all cursor-pointer" data-category="医疗健康" data-icon="💊" onclick="selectCategory('医疗健康', '💊', this)" type="button">
+<span class="text-xl">💊</span>
+<span class="text-[11px]">医疗健康</span>
+</button>
+</div>
+</div>
+<!-- 备注输入与标签 -->
+<div class="mt-4 flex flex-col gap-2">
+<input class="w-full px-4 py-2.5 rounded-xl bg-surface-container-low text-on-surface text-body-sm placeholder:text-outline-variant outline-none focus:ring-2 focus:ring-primary-container transition-all" id="record-remark" placeholder="写一句手账备注（如：喝到了超赞的白桃乌龙）..." type="text">
+<div class="flex items-center gap-2">
+<span class="text-[11px] text-on-surface-variant">快捷标签：</span>
+<div class="flex items-center gap-1.5 flex-wrap">
+<button class="px-2 py-0.5 rounded-full bg-surface-container-low text-[11px] text-on-surface-variant hover:text-primary hover:bg-primary-fixed transition-colors" onclick="appendTag('工作餐')" type="button">+ 工作餐</button>
+<button class="px-2 py-0.5 rounded-full bg-surface-container-low text-[11px] text-on-surface-variant hover:text-primary hover:bg-primary-fixed transition-colors" onclick="appendTag('小确幸')" type="button">+ 小确幸</button>
+<button class="px-2 py-0.5 rounded-full bg-surface-container-low text-[11px] text-on-surface-variant hover:text-primary hover:bg-primary-fixed transition-colors" onclick="appendTag('犒劳自己')" type="button">+ 犒劳自己</button>
+</div>
+</div>
+</div>
+<!-- 操作按钮 -->
+<div class="mt-6 flex items-center justify-end gap-3 pt-3 border-t border-surface-container-low">
+<button class="px-4 py-2 rounded-full text-on-surface-variant hover:text-on-surface hover:bg-surface-container text-label-md font-bold transition-all" onclick="closeRecordModal()" type="button">
+取消
+</button>
+<button class="flex items-center gap-1.5 px-6 py-2.5 rounded-full bg-primary-container text-on-primary-container hover:bg-primary hover:text-on-primary font-label-md text-label-md font-bold shadow-[0_4px_16px_rgba(255,143,171,0.25)] transition-all active:scale-95" onclick="submitRecord()" type="button">
+<span class="material-symbols-outlined text-[18px]">check_circle</span>
+<span>保存这笔账</span>
+</button>
+</div>
+</div>
+</div>
+<!-- 全局柔和粉嫩 Toast 容器 -->
+<div class="fixed top-6 left-1/2 -translate-x-1/2 z-[9999] pointer-events-none transition-all duration-300 opacity-0 -translate-y-2 flex items-center gap-2.5 bg-surface-container-lowest text-on-surface px-5 py-2.5 rounded-full shadow-[0_8px_30px_rgba(255,143,171,0.3)] border border-primary-fixed" id="global-toast">
+<span class="material-symbols-outlined text-primary text-[20px]" id="toast-icon">check_circle</span>
+<span class="font-label-md text-label-md font-bold" id="toast-msg">操作成功</span>
+</div>
+<!-- 原生 JAVASCRIPT 记账与通用交互驱动 -->
+<script>
+let selectedCategory = '餐饮美食';
+let selectedIcon = '🍜';
+let currentRecordType = 'expense';
+
+function showToast(msg, icon = 'check_circle') {
+  const toast = document.getElementById('global-toast');
+  const msgEl = document.getElementById('toast-msg');
+  const iconEl = document.getElementById('toast-icon');
+  if (!toast || !msgEl) return;
+  msgEl.innerText = msg;
+  iconEl.innerText = icon;
+  
+  toast.classList.remove('opacity-0', '-translate-y-2', 'pointer-events-none');
+  toast.classList.add('opacity-100', 'translate-y-0');
+
+  clearTimeout(window._toastTimer);
+  window._toastTimer = setTimeout(() => {
+    toast.classList.remove('opacity-100', 'translate-y-0');
+    toast.classList.add('opacity-0', '-translate-y-2', 'pointer-events-none');
+  }, 2800);
+}
+
+function openRecordModal() {
+  const modal = document.getElementById('modal-record');
+  const content = document.getElementById('modal-record-content');
+  modal.classList.remove('opacity-0', 'pointer-events-none');
+  modal.classList.add('opacity-100');
+  content.classList.remove('scale-95');
+  content.classList.add('scale-100');
+  document.getElementById('record-amount').value = '';
+  document.getElementById('record-remark').value = '';
+  setTimeout(() => document.getElementById('record-amount').focus(), 150);
+}
+
+function closeRecordModal() {
+  const modal = document.getElementById('modal-record');
+  const content = document.getElementById('modal-record-content');
+  content.classList.remove('scale-100');
+  content.classList.add('scale-95');
+  modal.classList.remove('opacity-100');
+  modal.classList.add('opacity-0', 'pointer-events-none');
+}
+
+function switchRecordType(type) {
+  currentRecordType = type;
+  const expBtn = document.getElementById('type-btn-expense');
+  const incBtn = document.getElementById('type-btn-income');
+  const prefix = document.getElementById('amount-prefix');
+  const catGrid = document.getElementById('category-grid');
+
+  if (type === 'expense') {
+    expBtn.className = "flex-1 py-1.5 rounded-full bg-primary text-on-primary font-label-md text-label-md font-bold transition-all text-center";
+    incBtn.className = "flex-1 py-1.5 rounded-full text-on-surface-variant hover:text-on-surface font-label-md text-label-md font-bold transition-all text-center";
+    prefix.innerText = '-¥';
+    prefix.className = 'text-2xl font-bold text-primary font-numeric-hero';
+    
+    catGrid.innerHTML = `
+      <button type="button" class="cat-pill flex flex-col items-center gap-1 p-2 rounded-2xl bg-primary-fixed/50 text-primary border border-primary text-center transition-all cursor-pointer" data-category="餐饮美食" data-icon="🍜" onclick="selectCategory('餐饮美食', '🍜', this)">
+        <span class="text-xl">🍜</span><span class="text-[11px] font-bold">餐饮美食</span>
+      </button>
+      <button type="button" class="cat-pill flex flex-col items-center gap-1 p-2 rounded-2xl bg-surface-container-low hover:bg-surface-container text-on-surface border border-transparent text-center transition-all cursor-pointer" data-category="交通出行" data-icon="🚌" onclick="selectCategory('交通出行', '🚌', this)">
+        <span class="text-xl">🚌</span><span class="text-[11px]">交通出行</span>
+      </button>
+      <button type="button" class="cat-pill flex flex-col items-center gap-1 p-2 rounded-2xl bg-surface-container-low hover:bg-surface-container text-on-surface border border-transparent text-center transition-all cursor-pointer" data-category="日常购物" data-icon="🛍️" onclick="selectCategory('日常购物', '🛍️', this)">
+        <span class="text-xl">🛍️</span><span class="text-[11px]">日常购物</span>
+      </button>
+      <button type="button" class="cat-pill flex flex-col items-center gap-1 p-2 rounded-2xl bg-surface-container-low hover:bg-surface-container text-on-surface border border-transparent text-center transition-all cursor-pointer" data-category="休闲娱乐" data-icon="🎮" onclick="selectCategory('休闲娱乐', '🎮', this)">
+        <span class="text-xl">🎮</span><span class="text-[11px]">休闲娱乐</span>
+      </button>
+      <button type="button" class="cat-pill flex flex-col items-center gap-1 p-2 rounded-2xl bg-surface-container-low hover:bg-surface-container text-on-surface border border-transparent text-center transition-all cursor-pointer" data-category="日用杂项" data-icon="📌" onclick="selectCategory('日用杂项', '📌', this)">
+        <span class="text-xl">📌</span><span class="text-[11px]">日用杂项</span>
+      </button>
+      <button type="button" class="cat-pill flex flex-col items-center gap-1 p-2 rounded-2xl bg-surface-container-low hover:bg-surface-container text-on-surface border border-transparent text-center transition-all cursor-pointer" data-category="美妆穿搭" data-icon="💄" onclick="selectCategory('美妆穿搭', '💄', this)">
+        <span class="text-xl">💄</span><span class="text-[11px]">美妆穿搭</span>
+      </button>
+      <button type="button" class="cat-pill flex flex-col items-center gap-1 p-2 rounded-2xl bg-surface-container-low hover:bg-surface-container text-on-surface border border-transparent text-center transition-all cursor-pointer" data-category="学习成长" data-icon="📚" onclick="selectCategory('学习成长', '📚', this)">
+        <span class="text-xl">📚</span><span class="text-[11px]">学习成长</span>
+      </button>
+      <button type="button" class="cat-pill flex flex-col items-center gap-1 p-2 rounded-2xl bg-surface-container-low hover:bg-surface-container text-on-surface border border-transparent text-center transition-all cursor-pointer" data-category="医疗健康" data-icon="💊" onclick="selectCategory('医疗健康', '💊', this)">
+        <span class="text-xl">💊</span><span class="text-[11px]">医疗健康</span>
+      </button>
+    `;
+    selectCategory('餐饮美食', '🍜');
+  } else {
+    incBtn.className = "flex-1 py-1.5 rounded-full bg-secondary text-on-secondary font-label-md text-label-md font-bold transition-all text-center";
+    expBtn.className = "flex-1 py-1.5 rounded-full text-on-surface-variant hover:text-on-surface font-label-md text-label-md font-bold transition-all text-center";
+    prefix.innerText = '+¥';
+    prefix.className = 'text-2xl font-bold text-secondary font-numeric-hero';
+    
+    catGrid.innerHTML = `
+      <button type="button" class="cat-pill flex flex-col items-center gap-1 p-2 rounded-2xl bg-secondary-container text-secondary border border-secondary text-center transition-all cursor-pointer" data-category="薪资劳动" data-icon="💰" onclick="selectCategory('薪资劳动', '💰', this)">
+        <span class="text-xl">💰</span><span class="text-[11px] font-bold">薪资劳动</span>
+      </button>
+      <button type="button" class="cat-pill flex flex-col items-center gap-1 p-2 rounded-2xl bg-surface-container-low hover:bg-surface-container text-on-surface border border-transparent text-center transition-all cursor-pointer" data-category="兼职外快" data-icon="🎁" onclick="selectCategory('兼职外快', '🎁', this)">
+        <span class="text-xl">🎁</span><span class="text-[11px]">兼职外快</span>
+      </button>
+      <button type="button" class="cat-pill flex flex-col items-center gap-1 p-2 rounded-2xl bg-surface-container-low hover:bg-surface-container text-on-surface border border-transparent text-center transition-all cursor-pointer" data-category="理财收益" data-icon="📈" onclick="selectCategory('理财收益', '📈', this)">
+        <span class="text-xl">📈</span><span class="text-[11px]">理财收益</span>
+      </button>
+      <button type="button" class="cat-pill flex flex-col items-center gap-1 p-2 rounded-2xl bg-surface-container-low hover:bg-surface-container text-on-surface border border-transparent text-center transition-all cursor-pointer" data-category="人情红包" data-icon="🧧" onclick="selectCategory('人情红包', '🧧', this)">
+        <span class="text-xl">🧧</span><span class="text-[11px]">人情红包</span>
+      </button>
+    `;
+    selectCategory('薪资劳动', '💰');
+  }
+}
+
+function selectCategory(name, icon, element) {
+  selectedCategory = name;
+  selectedIcon = icon;
+  document.getElementById('current-cat-tag').innerText = `当前：${name} ${icon}`;
+  
+  const pills = document.querySelectorAll('.cat-pill');
+  pills.forEach(p => {
+    p.classList.remove('border-primary', 'bg-primary-fixed/50', 'text-primary', 'border-secondary', 'bg-secondary-container', 'text-secondary');
+    p.classList.add('bg-surface-container-low', 'text-on-surface', 'border-transparent');
+    const span = p.querySelector('span:last-child');
+    if (span) span.classList.remove('font-bold');
+  });
+
+  const activePill = element || document.querySelector(`[data-category="${name}"]`);
+  if (activePill) {
+    activePill.classList.remove('bg-surface-container-low', 'text-on-surface', 'border-transparent');
+    if (currentRecordType === 'expense') {
+      activePill.classList.add('border-primary', 'bg-primary-fixed/50', 'text-primary');
+    } else {
+      activePill.classList.add('border-secondary', 'bg-secondary-container', 'text-secondary');
+    }
+    const span = activePill.querySelector('span:last-child');
+    if (span) span.classList.add('font-bold');
+  }
+}
+
+function appendTag(tag) {
+  const remarkInput = document.getElementById('record-remark');
+  if (remarkInput.value.includes(tag)) return;
+  remarkInput.value = remarkInput.value ? `${remarkInput.value} #${tag}` : `#${tag} `;
+  remarkInput.focus();
+}
+
+function submitRecord() {
+  const amtInput = document.getElementById('record-amount');
+  const amountVal = parseFloat(amtInput.value);
+
+  if (isNaN(amountVal) || amountVal <= 0) {
+    showToast('请输入有效的记账金额哦 🌸', 'warning');
+    amtInput.focus();
+    return;
+  }
+
+  const isExp = currentRecordType === 'expense';
+  closeRecordModal();
+  showToast(`已成功入账：${isExp ? '支出' : '收入'} ¥${amountVal.toFixed(2)} ✨`);
+}
+
+function handleSearch(keyword) {
+  if (keyword && keyword.trim()) {
+    showToast(`正在手账中寻找 “${keyword.trim()}” 🌸`);
+  }
+}
+
+function handleNavClick(el, title) {
+  document.querySelectorAll('.nav-item').forEach(item => {
+    item.className = "nav-item flex items-center gap-3 px-space-md py-2.5 rounded-xl text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-label-lg text-label-lg transition-all duration-150";
+    item.removeAttribute('aria-current');
+  });
+
+  el.className = "nav-item flex items-center gap-3 px-space-md py-2.5 rounded-xl transition-all duration-150 bg-surface-container-low text-primary font-bold shadow-[0_2px_10px_rgba(255,143,171,0.12)]";
+  el.setAttribute('aria-current', 'page');
+  showToast(`已切入功能看板：${title}`);
+}
+
+document.addEventListener('keydown', (e) => {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+    if (e.key === 'Escape') {
+      closeRecordModal();
+      closeChangePasswordModal();
+    }
+    return;
+  }
+  if (e.key === 'n' || e.key === 'N') {
+    e.preventDefault();
+    openRecordModal();
+  }
+  if (e.key === 'Escape') {
+    closeRecordModal();
+    closeChangePasswordModal();
+  }
+});
+
+const modalRec = document.getElementById('modal-record');
+if (modalRec) {
+  modalRec.addEventListener('click', (e) => {
+    if (e.target.id === 'modal-record') closeRecordModal();
+  });
+}
+</script>
+
+
+
+
+
+
+<script defer src="../assets/js/prototype-navigation.js"></script><script defer src="../assets/js/app.js"></script></body></html>

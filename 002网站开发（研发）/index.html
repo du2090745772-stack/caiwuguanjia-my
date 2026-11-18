@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>每日记账本 · 10秒记完一笔账的网页记账工具</title>
+<meta name="description" content="免登录、打开即用的网页记账本：3步记完一笔账，自动汇总日周月收支、分类占比与趋势，支持预算提醒、账单搜索、CSV 导出和长辈关怀模式。数据保存在本机浏览器。">
+<meta name="theme-color" content="#FFFAFB">
+<link rel="stylesheet" href="styles/tokens.css">
+<link rel="stylesheet" href="styles/app.css">
+</head>
+<body class="landing-body">
+<main class="landing">
+  <header class="landing__head">
+    <span class="landing__logo" aria-hidden="true">记</span>
+    <span class="landing__word">每日记账本</span>
+    <span class="landing__badge">免登录 · 打开即用</span>
+  </header>
+
+  <section class="landing__main">
+    <div class="landing__inner">
+      <div>
+        <p class="landing__eyebrow">网页版记账本</p>
+        <h1 class="landing__title">10 秒记完一笔账<br>看清钱花在了哪里</h1>
+        <p class="landing__sub">付款后随手打开网页，选分类、输金额、保存 —— 三步结束。月底想看的时候，分类占比和每日趋势已经替你算好了。</p>
+        <div class="landing__cta">
+          <a class="btn btn--primary" href="app.html" id="start">立即开始记账</a>
+          <span class="landing__note">不需要注册，账单保存在这台设备的浏览器里 ·
+            <a class="landing__login" href="app.html#/login">已有账号？登录</a> ·
+            <a class="landing__login" href="app.html#/register">注册一个</a></span>
+        </div>
+      </div>
+
+      <div class="phone-preview" aria-label="界面示意">
+        <div class="phone-preview__top"><span>本月支出</span><span>2026年11月</span></div>
+        <p class="phone-preview__big">¥1,842.50</p>
+        <div class="rec">
+          <span class="rec__icon">🍜</span>
+          <span class="rec__main"><b>餐饮</b><span class="rec__sub">午饭 · 今天 12:30</span></span>
+          <span class="rec__amount rec__amount--expense">-32.00</span>
+        </div>
+        <div class="rec">
+          <span class="rec__icon">🚌</span>
+          <span class="rec__main"><b>交通</b><span class="rec__sub">地铁 · 今天 08:15</span></span>
+          <span class="rec__amount rec__amount--expense">-6.00</span>
+        </div>
+        <p class="phone-preview__hint">界面示意，数字为示例</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="landing__points" aria-label="主要能力">
+    <div class="point">
+      <b>记一笔只要 3 步</b>
+      <span>手机上是自绘数字键盘，电脑上金额框自动聚焦，回车即保存。</span>
+    </div>
+    <div class="point">
+      <b>统计看图，点分类能下钻</b>
+      <span>日 / 周 / 月 / 年汇总，环形图看分类占比，柱状图和折线图看趋势。</span>
+    </div>
+    <div class="point">
+      <b>预算提醒与长辈模式</b>
+      <span>设置月度预算，用到 80% 和超支时各提醒一次；关怀模式字号放大、层级简化。</span>
+    </div>
+    <div class="point">
+      <b>账单能搜、能导出</b>
+      <span>按关键词、金额区间、日期和收支类型筛选，按月导出 CSV 备份。</span>
+    </div>
+  </section>
+
+  <footer class="landing__foot">
+    <p>当前版本把数据保存在浏览器本地存储（IndexedDB），清除浏览器数据会一并删掉账单，建议定期用「导出账单」备份。</p>
+    <p>账号注册与云端同步、多设备同步在后续版本提供。</p>
+  </footer>
+</main>
+<script>
+  (function () {
+    var count = 0;
+    try { count = parseInt(localStorage.getItem('daily_ledger:record_count') || '0', 10) || 0; } catch (e) { count = 0; }
+    if (count > 0) {
+      var link = document.getElementById('start');
+      link.textContent = '继续记账';
+      link.href = 'app.html#/flow';
+    }
+  })();
+</script>
+</body>
+</html>
