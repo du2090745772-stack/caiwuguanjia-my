@@ -48,21 +48,34 @@
     overlay.addEventListener('click', (event) => { if (event.target === overlay) overlay.remove(); });
     form.querySelector('input,textarea')?.focus();
   }
-  async function hash(password, salt) {
-    const bytes = new TextEncoder().encode(`${salt}:${password}`);
-    const digest = await crypto.subtle.digest('SHA-256', bytes);
-    return [...new Uint8Array(digest)].map((n) => n.toString(16).padStart(2, '0')).join('');
-  }
-  const accounts = () => read('accounts', {});
   const usernameValid = (name) => /^[\p{L}\p{N}_]{3,20}$/u.test(name) && /[\p{L}\p{N}]/u.test(name);
 
   function initAuth() {
     const form = page === 'auth.html' ? $('#auth-form') : $('form');
-    if (!form) return;
+    if (!form || !window.AuthApi) return;
     const action = page === 'auth.html' ? 'login' : 'register';
     const button = page === 'auth.html' ? $('#btn-login-only') : $('button[type="submit"]', form);
     const error = document.createElement('p'); error.className = 'app-form-error'; error.setAttribute('role', 'alert');
     if (page === 'auth.html') button?.parentElement?.after(error); else button?.after(error);
+    /* 两个页面的按钮里图标 span 位置不一致，按「非 material-symbols 的文字 span」找文案节点 */
+    const label = [...button.children].find((node) => node.tagName === 'SPAN' && !node.classList.contains('material-symbols-outlined') && node.textContent.trim()) || button;
+    const idleText = label.textContent;
+    const restore = () => { button.disabled = false; label.textContent = idleText; };
+
+    /* 锁定与频控都在服务端（ACC-02 规则5），前端只做文案兜底：
+       把 retry_after_seconds 走成倒计时，时间没到就不让人反复提交去撞墙。 */
+    function countdown(seconds) {
+      const until = Date.now() + seconds * 1000;
+      const tick = () => {
+        const left = Math.ceil((until - Date.now()) / 1000);
+        if (left <= 0) { clearInterval(timer); restore(); error.textContent = '尝试次数太多，请稍后再试'; return; }
+        button.disabled = true;
+        label.textContent = `请 ${left} 秒后再试`;
+      };
+      const timer = setInterval(tick, 1000);
+      tick();
+    }
+
     const submit = async (event) => {
       event.preventDefault(); event.stopImmediatePropagation();
       const name = ($('#username')?.value || '').trim().toLowerCase();
@@ -72,25 +85,22 @@
       if (password.length < 6 || password.length > 64) { error.textContent = '密码长度应为 6–64 位。'; return; }
       if (!consent?.checked) { error.textContent = '请先勾选并同意隐私条款。'; return; }
       if (action === 'register' && password !== ($('#confirmPassword')?.value || '')) { error.textContent = '两次输入的密码不一致。'; return; }
-      button.disabled = true; error.textContent = '';
+      button.disabled = true; error.textContent = ''; label.textContent = '提交中…';
       try {
-        const all = accounts();
-        if (action === 'register') {
-          if (all[name]) { error.textContent = '这个用户名已经有了，换一个或直接登录。'; return; }
-          const salt = crypto.randomUUID();
-          all[name] = { salt, hash: await hash(password, salt) }; write('accounts', all);
-          write('session', name);
-          const newProfile = { username: name, nickname: name };
-          write('profile', newProfile);
-          write('profiles', { ...read('profiles', {}), [name]: newProfile });
-        } else {
-          if (!all[name] || all[name].hash !== await hash(password, all[name].salt)) { error.textContent = '账号或密码不对，再检查一下。'; $('#password').value = ''; return; }
-          write('session', name);
-          write('profile', { username: name, nickname: name, ...read('profiles', {})[name] });
-        }
+        /* 一个浏览器只保留一个登录态（ACC-02 规则7）：本机还留着上一次的 Token 就先吊销，
+           否则每次登录都在服务端积一个没人认领的会话，要等 30 天才自然过期。 */
+        if (window.AuthApi.isSignedIn()) await window.AuthApi.logout().catch(() => {});
+        const result = action === 'register'
+          ? await window.AuthApi.register(name, password)
+          : await window.AuthApi.login(name, password);
+        write('session', result.user.username);
+        write('profile', { username: result.user.username, nickname: result.user.username, ...read('profiles', {})[result.user.username] });
         route('profile.html');
-      } catch { error.textContent = '本地账号操作失败，请检查浏览器存储权限。'; }
-      finally { button.disabled = false; }
+      } catch (problem) {
+        if (problem.code === 'account_locked' || problem.code === 'rate_limited') countdown(problem.retryAfterSeconds || 15);
+        else { error.textContent = problem.message; restore(); }
+        if (problem.status === 401) $('#password').value = '';
+      }
     };
     button?.addEventListener('click', submit, true);
     form.addEventListener('submit', submit, true);
@@ -371,16 +381,15 @@
     if(logoutName)logoutName.textContent=`${profile.nickname||session||'桃桃酱'} (${profile.username||session||'访客'})`;
     const button=document.createElement('button');button.type='button';button.className='app-profile-edit';button.textContent='编辑个人资料';
     identity.parentElement?.parentElement?.append(button);
-    button.onclick=()=>dialog('编辑个人资料',[{name:'nickname',label:'网名',value:profile.nickname||session||'桃桃酱',maxLength:20},{name:'username',label:'用户名',value:profile.username||session||'taozi_2026',maxLength:20},{name:'bio',label:'简介',kind:'textarea',value:profile.bio||bio?.textContent||'',maxLength:100},{name:'avatar',label:'上传头像',type:'file',required:false}],async(values)=>{
-      const nickname=values.nickname.trim(), username=values.username.trim().toLowerCase(), bioText=values.bio.trim();
-      if(!nickname)throw Error('请输入网名。');if(!usernameValid(username))throw Error('用户名要 3–20 位，只能用中文、字母、数字或下划线。');
-      const all=accounts();const old=read('session','');if(username!==old&&all[username])throw Error('该用户名已被使用。');
-      if(old&&all[old]&&username!==old){all[username]=all[old];delete all[old];write('accounts',all);write('session',username);}
-      const updated={...profile,nickname,username,bio:bioText};
+    button.onclick=()=>dialog('编辑个人资料',[{name:'nickname',label:'网名',value:profile.nickname||session||'桃桃酱',maxLength:20},{name:'bio',label:'简介',kind:'textarea',value:profile.bio||bio?.textContent||'',maxLength:100},{name:'avatar',label:'上传头像',type:'file',required:false}],async(values)=>{
+      const nickname=values.nickname.trim(), bioText=values.bio.trim();
+      if(!nickname)throw Error('请输入网名。');
+      /* 用户名归账号服务管，本机改名等于换成另一个账号（ACC-04 规则6），所以这里不开放编辑 */
+      const updated={...profile,nickname,bio:bioText};
       const file=$('#app-avatar')?.files[0];
       if(file){if(!file.type.startsWith('image/'))throw Error('请选择图片文件。');if(file.size>5*1024*1024)throw Error('头像请小于 5 MB。');updated.avatar=await new Promise((resolve,reject)=>{const image=new Image();image.onload=()=>{const canvas=document.createElement('canvas');canvas.width=160;canvas.height=160;const ctx=canvas.getContext('2d');const size=Math.min(image.width,image.height);ctx.drawImage(image,(image.width-size)/2,(image.height-size)/2,size,size,0,0,160,160);resolve(canvas.toDataURL('image/jpeg',.82));};image.onerror=()=>reject(Error('头像图片无法读取。'));image.src=URL.createObjectURL(file);});}
       write('profile',updated);
-      const profiles=read('profiles',{});profiles[username]=updated;if(old&&old!==username)delete profiles[old];write('profiles',profiles);
+      const profiles=read('profiles',{});if(updated.username)profiles[updated.username]=updated;write('profiles',profiles);
       location.reload();
     });
   }
@@ -481,6 +490,11 @@
   if(page==='budget-adjust.html')initBudgetAdjust();
   initBills();initBudget();initBudgetVariants();initProfile();initStats();
   if(page==='logout.html'){
-    $$('button').filter((button)=>button.textContent.includes('确认退出')).forEach((button)=>button.addEventListener('click',(event)=>{event.preventDefault();event.stopImmediatePropagation();localStorage.removeItem('pj.session');localStorage.removeItem('pj.profile');route('bills.html');},true));
+    $$('button').filter((button)=>button.textContent.includes('确认退出')).forEach((button)=>button.addEventListener('click',async (event)=>{
+      event.preventDefault();event.stopImmediatePropagation();button.disabled=true;
+      /* 退出必须让服务端一并吊销会话：只清本机 Storage 的话 Refresh Token 还能用 30 天 */
+      try { await window.AuthApi?.logout(); } catch { /* 吊销失败也放行，本机退出优先 */ }
+      localStorage.removeItem('pj.session');localStorage.removeItem('pj.profile');route('bills.html');
+    },true));
   }
 })();

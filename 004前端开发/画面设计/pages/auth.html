@@ -35,7 +35,7 @@
 <div class="flex flex-col gap-2 pt-2 w-full">
 <div class="flex items-center gap-2.5 text-body-sm text-on-surface-variant bg-surface-container-lowest/60 backdrop-blur-xs px-3 py-2 rounded-xl border border-surface-container-highest/60">
 <span class="material-symbols-outlined text-secondary text-[18px]">lock_reset</span>
-<span>本机账号演示，密码仅保存摘要</span>
+<span>账号由本地服务端管理，密码只存 argon2id 摘要</span>
 </div>
 <div class="flex items-center gap-2.5 text-body-sm text-on-surface-variant bg-surface-container-lowest/60 backdrop-blur-xs px-3 py-2 rounded-xl border border-surface-container-highest/60"><span class="material-symbols-outlined text-primary text-[18px]">verified</span><span>账单和资料保存在当前浏览器</span></div>
 </div>
@@ -71,7 +71,7 @@
 <span class="material-symbols-outlined text-[18px]">close</span>
 </button>
 </div>
-<p class="leading-relaxed">1. 采用本机演示账号仅保存在此浏览器中，密码以随机盐和摘要保存；<br>2. 当前没有云端服务，不会自动跨设备同步或备份；<br>3. 清除浏览器站点数据会移除本机账号与账单，请先导出 CSV。</p>
+<p class="leading-relaxed">1. 用户名与密码摘要存在本地账号服务（MySQL），密码只落 argon2id 加盐哈希，服务端不留明文；<br>2. 登录态为 Access 2 小时 + Refresh 30 天滚动续期，退出即吊销当前会话；<br>3. 账单仍保存在本机浏览器，清理站点数据前请先导出 CSV，账单备份上云的接口在后续版本接入。</p>
 </div>
 <!-- Form Body -->
 <form class="flex flex-col gap-5 my-auto py-5" id="auth-form" onsubmit="event.preventDefault();">
@@ -135,7 +135,7 @@
 <a class="py-3 px-6 rounded-full bg-surface-container-low text-primary font-label-lg text-label-lg border border-primary-container/30 hover:bg-surface-container active:scale-[0.99] transition-all flex items-center justify-center gap-2 group" href="register.html"><span class="material-symbols-outlined text-[18px]">person_add</span><span>立即注册</span><span class="material-symbols-outlined text-[18px] transition-transform group-hover:translate-x-1">arrow_forward</span></a>
 </div>
 <!-- Security encryption notice -->
-<div class="text-center font-body-sm text-body-sm text-outline flex items-center justify-center gap-1.5 pt-1"><span class="material-symbols-outlined text-[15px]">lock</span><span>本机浏览器演示 · 暂无云端备份</span></div>
+<div class="text-center font-body-sm text-body-sm text-outline flex items-center justify-center gap-1.5 pt-1"><span class="material-symbols-outlined text-[15px]">lock</span><span>账号走本地服务端 · 账单备份上云待接入</span></div>
 </form>
 <!-- Bottom Alternative Escape Hatch -->
 <div class="pt-4 border-t border-surface-container-high/60 flex items-center justify-center">
@@ -229,49 +229,12 @@
       });
     }
 
-    // 6. Register & Login Actions
-    const registerBtn = document.getElementById('btn-register-backup');
-    const loginBtn = document.getElementById('btn-login-only');
-    const privacyCheck = document.getElementById('privacy-check');
-    const usernameInput = document.getElementById('username');
-
-    function validateCommon() {
-      if (!privacyCheck.checked) {
-        showToast('请先勾选《隐私政策》与《数据安全条款》');
-        return false;
-      }
-      if (!usernameInput.value.trim()) {
-        showToast('请输入用户名 (3–20位字母/数字/下划线)');
-        usernameInput.focus();
-        return false;
-      }
-      if (!pwdInput.value.trim() || pwdInput.value.trim().length < 6) {
-        showToast('请输入至少 6 位密码');
-        pwdInput.focus();
-        return false;
-      }
-      return true;
-    }
-
-    if (registerBtn) {
-      registerBtn.addEventListener('click', () => {
-        if (validateCommon()) {
-          showToast('注册成功！正在为您自动加密备份本地账单至云端...');
-        }
-      });
-    }
-
-    if (loginBtn) {
-      loginBtn.addEventListener('click', () => {
-        if (validateCommon()) {
-          showToast('登录成功！正在同步您的手账数据...');
-        }
-      });
-    }
+    // 6. 注册与登录的真实提交在 assets/js/api.js + app.js 里（对接 /api/v1/auth/*），
+    //    此处不再用假 toast 谎报成功。
   })();
 </script>
 
 
 
 
-<script defer src="../assets/js/prototype-navigation.js"></script><script defer src="../assets/js/app.js?v=20261118b"></script></body></html>
+<script defer src="../assets/js/prototype-navigation.js"></script><script defer src="../assets/js/api.js?v=20261119a"></script><script defer src="../assets/js/app.js?v=20261119a"></script></body></html>

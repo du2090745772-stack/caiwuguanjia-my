@@ -1,0 +1,21 @@
+{
+  "name": "daily-ledger-auth-server",
+  "version": "1.0.1",
+  "private": true,
+  "type": "module",
+  "description": "每日记账本 账号服务 /api/v1/auth/*（PRD V1.0.1 ACC-02 / ACC-04）",
+  "engines": {
+    "node": ">=22.12"
+  },
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "test": "node --test --test-reporter=spec"
+  },
+  "dependencies": {
+    "@node-rs/argon2": "^2.2.2",
+    "express": "^5.3.0",
+    "jsonwebtoken": "^9.0.2",
+    "mysql2": "^3.24.6"
+  }
+}
