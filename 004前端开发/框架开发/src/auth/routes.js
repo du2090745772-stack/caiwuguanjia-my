@@ -8,6 +8,7 @@
 
 import { Router } from 'express';
 import { config } from '../config.js';
+import { fromSqlUtc } from '../db.js';
 import { errors } from '../http/errors.js';
 import { requireAuth } from '../middleware/require-auth.js';
 import { validatePassword, validateUsername } from './validators.js';
@@ -71,7 +72,9 @@ async function authResponse(user, tokens, { isNew }) {
     user: { ...toPublicUser(user), is_new_account: isNew },
     cloud_summary: {
       bill_count: Number(cloud?.bill_count ?? 0),
-      latest_bill_at: cloud?.latest_bill_at ?? null
+      /* 库里 DATETIME(3) 存的是 UTC 文本（005数据库脚本 全局口径 B），直接丢给前端会被
+         当成本地时间解析，差 8 小时。出接口一律转成带 Z 的 ISO 时刻，由前端渲染本地时间 */
+      latest_bill_at: fromSqlUtc(cloud?.latest_bill_at)?.toISOString() ?? null
     }
   };
 }

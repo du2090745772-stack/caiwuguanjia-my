@@ -4,6 +4,18 @@
 (() => {
   'use strict';
 
+  /* 双击 HTML 打开的是 file:// 页面，浏览器一律不允许它请求 http://127.0.0.1:3000，
+     注册必然连不上——这是同源策略，改前端代码绕不过去。所以直接把同一个页面
+     换成 http 地址重开，让人不用记命令。服务没起时会停在「拒绝连接」，
+     那时双击 004前端开发/框架开发/双击启动.command 即可。 */
+  if (location.protocol === 'file:') {
+    const path = decodeURIComponent(location.pathname);
+    const cut = path.indexOf('/画面设计/');
+    const rel = cut === -1 ? '/' : path.slice(cut + '/画面设计'.length);
+    location.replace(`http://127.0.0.1:3000${encodeURI(rel)}`);
+    return;
+  }
+
   const read = (key, fallback) => {
     try { return JSON.parse(localStorage.getItem(`pj.${key}`)) ?? fallback; } catch { return fallback; }
   };

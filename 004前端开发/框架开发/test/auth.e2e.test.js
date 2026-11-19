@@ -299,3 +299,23 @@ test('同名并发注册：只有一个成功，另一个 409', async () => {
   const statuses = [x.status, y.status].sort();
   assert.deepEqual(statuses, [201, 409], '唯一索引要保证并发建号不产生两个同名账号');
 });
+
+test('时间口径：库里存 UTC，出接口必须转成带 Z 的 ISO 时刻', async () => {
+  const who = identity();
+  const username = nameFor(20);
+  const registered = await register(username, who);
+  assert.equal(registered.body.cloud_summary.latest_bill_at, null, '新账号没有账单，最近变更时间应为空');
+
+  const { id } = await userRow(username);
+  await run(`INSERT INTO bill_records (user_id, amount_cent, record_date) VALUES (?, ?, ?)`,
+    [id, 1200, '2026-11-19']);
+  const res = await login(username, who);
+  const iso = res.body.cloud_summary.latest_bill_at;
+
+  assert.match(iso, /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/,
+    '少了 Z 前端会按本地时间解析，流程四的「云端最近变更」会整整差一个时区');
+  const [row] = await query(`SELECT updated_at FROM bill_records WHERE user_id = ?`, [id]);
+  assert.equal(Date.parse(iso), Date.parse(`${row.updated_at.replace(' ', 'T')}Z`), '转格式只能改表示，不能改时刻');
+
+  await run(`DELETE FROM bill_records WHERE user_id = ?`, [id]);
+});
