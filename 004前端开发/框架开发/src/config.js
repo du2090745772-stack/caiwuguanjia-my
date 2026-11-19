@@ -96,7 +96,7 @@ export const config = {
   /* 原型页面由本进程一起托管，页面和接口同源，跨域这一整层坑就此消失，
      本机联调也只需要起一个进程。环境变量 STATIC_DIR 设成空字符串即可关掉。 */
   staticDir: process.env.STATIC_DIR === undefined
-    ? resolve(packageRoot, '..', '004前端开发', '画面设计')
+    ? resolve(packageRoot, '..', '画面设计')
     : process.env.STATIC_DIR === '' ? '' : resolve(packageRoot, process.env.STATIC_DIR)
 };
 

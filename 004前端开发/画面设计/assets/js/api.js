@@ -10,7 +10,7 @@
   const write = (key, value) => localStorage.setItem(`pj.${key}`, JSON.stringify(value));
   const drop = (key) => localStorage.removeItem(`pj.${key}`);
 
-  /* 页面现在默认由账号服务自己同源托管（框架开发/ npm start → http://127.0.0.1:3000/），
+  /* 页面现在默认由账号服务自己同源托管（004前端开发/框架开发 npm start → http://127.0.0.1:3000/），
      这时接口就在本页 origin 下，后端换端口也不用改代码；
      还从 README 里的 python3 -m http.server 8080 打开时，退回同主机 :3000。
      需要指别处时用 pj.api_base 覆盖。 */
@@ -24,14 +24,14 @@
 
   function unreachableHelp() {
     if (location.protocol === 'file:') {
-      return '双击 HTML 直接打开（file://）时浏览器不允许访问账号服务。请在 框架开发/ 里 npm start，'
+      return '双击 HTML 直接打开（file://）时浏览器不允许访问账号服务。请在 004前端开发/框架开发 里 npm start，'
         + '再访问 http://127.0.0.1:3000/pages/auth.html';
     }
     return `连不上账号服务（${API_BASE}）。`
       + (location.port === '8080'
         ? `页面从 ${location.origin} 打开，属跨域：先确认后端已 npm start，`
-          + '并把这个来源加进 框架开发/.env 的 CORS_ORIGINS 后重启。'
-        : '页面本身就是这个服务端上来的，说明进程已经退出，请在 框架开发/ 重新 npm start。');
+          + '并把这个来源加进 004前端开发/框架开发/.env 的 CORS_ORIGINS 后重启。'
+        : '页面本身就是这个服务端上来的，说明进程已经退出，请在 004前端开发/框架开发 重新 npm start。');
   }
 
   class ApiFailure extends Error {
