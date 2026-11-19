@@ -1,7 +1,7 @@
 (() => {
   'use strict';
   const page = location.pathname.split('/').pop();
-  const defaultAvatar = 'https://lh3.googleusercontent.com/aida-public/AB6AXuCcCMDym5h5s3T7DPlobeX9Kzrs4glr5pYR01lWn3tslEYUpYPu-WcgP8eNQgsQV0WiD0gO8z90srQmt1wGcJ1gK_7QJZzOYuuspTJYJLvwhQympsioBqLAOaYm4aoVh3Im2pfAAg64la4aeiNY-acg9JxIj2VCNYseRvGV0Uza_lX2-aHKRmAcJCizmaJ7wf_zjJe-uefVc95jzWtku5A2lyu8v8HjWHcDGimGQ8Q';
+  const defaultAvatar = '../assets/images/default-avatar.svg';
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
   const read = (key, fallback) => { try { return JSON.parse(localStorage.getItem(`pj.${key}`)) ?? fallback; } catch { return fallback; } };
@@ -80,13 +80,13 @@
           const salt = crypto.randomUUID();
           all[name] = { salt, hash: await hash(password, salt) }; write('accounts', all);
           write('session', name);
-          const newProfile = { username: name, nickname: name };
+          const newProfile = { username: name, nickname: '翔翔' };
           write('profile', newProfile);
           write('profiles', { ...read('profiles', {}), [name]: newProfile });
         } else {
           if (!all[name] || all[name].hash !== await hash(password, all[name].salt)) { error.textContent = '账号或密码不对，再检查一下。'; $('#password').value = ''; return; }
           write('session', name);
-          write('profile', { username: name, nickname: name, ...read('profiles', {})[name] });
+          write('profile', { username: name, nickname: '翔翔', ...read('profiles', {})[name] });
         }
         route('profile.html');
       } catch { error.textContent = '本地账号操作失败，请检查浏览器存储权限。'; }
@@ -113,7 +113,7 @@
     const navGroup = page.startsWith('budget') ? 'budget' : page.startsWith('stats') ? 'stats' : page.startsWith('profile') || page === 'logout.html' ? 'profile' : page.startsWith('bills') || page === 'record.html' ? 'bills' : '';
     $$('a[data-path]').forEach((link) => { if (link.dataset.path === navGroup) link.setAttribute('aria-current', 'page'); else link.removeAttribute('aria-current'); });
     const profile = read('profile', {}); const session = read('session', '');
-    const nickname = profile.nickname || session || '桃桃';
+    const nickname = profile.nickname || '翔翔';
     $$('aside').forEach((aside) => {
       const card = $('div.cursor-pointer:last-child', aside) || $$('div.cursor-pointer', aside).at(-1);
       if (card) { card.style.cursor = 'pointer'; card.onclick = () => route('profile.html'); card.setAttribute('role', 'link'); card.setAttribute('tabindex', '0'); card.onkeydown = (e) => { if (e.key === 'Enter') route('profile.html'); }; }
@@ -359,19 +359,21 @@
       item.onkeydown=(event)=>{if(event.key==='Enter')route('logout.html');};
     });
     const profile=read('profile',{});const session=read('session','');
-    const identity=$$('h2').find((x)=>x.textContent.trim()==='桃桃酱');
+    const identity=$$('h2').find((x)=>x.textContent.trim()==='翔翔');
     if(!identity)return;
-    identity.textContent=profile.nickname||session||'桃桃酱';
+    identity.textContent=profile.nickname||'翔翔';
     const account=identity.parentElement?.querySelector('.font-mono');if(account)account.textContent=`@${profile.username||session||'访客'}`;
     const bio=identity.parentElement?.parentElement?.querySelector('p');if(bio)bio.textContent=profile.bio||'认真记录每一笔生活，把普通的日子过成温柔浪漫的诗篇。';
-    const avatar=identity.closest('.flex.items-start')?.querySelector('img')||identity.parentElement?.parentElement?.parentElement?.querySelector('img');
+    const avatar=identity.closest('section')?.querySelector('img[alt="翔字头像"]');
     if(avatar)avatar.src=profile.avatar||defaultAvatar;
     const logoutAvatar=$('#modal-logout-box img');if(logoutAvatar)logoutAvatar.src=profile.avatar||defaultAvatar;
-    const logoutName=$$('#modal-logout-box *').find((node)=>node.children.length===0&&node.textContent.includes('桃桃酱 (taoxi_2026)'));
-    if(logoutName)logoutName.textContent=`${profile.nickname||session||'桃桃酱'} (${profile.username||session||'访客'})`;
+    const logoutName=$('#modal-logout-box .font-label-lg.font-bold');
+    if(logoutName)logoutName.textContent=profile.nickname||'翔翔';
+    const logoutAccount=$('#modal-logout-box .font-mono');
+    if(logoutAccount)logoutAccount.textContent=`(${profile.username||session||'访客'})`;
     const button=document.createElement('button');button.type='button';button.className='app-profile-edit';button.textContent='编辑个人资料';
     identity.parentElement?.parentElement?.append(button);
-    button.onclick=()=>dialog('编辑个人资料',[{name:'nickname',label:'网名',value:profile.nickname||session||'桃桃酱',maxLength:20},{name:'username',label:'用户名',value:profile.username||session||'taozi_2026',maxLength:20},{name:'bio',label:'简介',kind:'textarea',value:profile.bio||bio?.textContent||'',maxLength:100},{name:'avatar',label:'上传头像',type:'file',required:false}],async(values)=>{
+    button.onclick=()=>dialog('编辑个人资料',[{name:'nickname',label:'网名',value:profile.nickname||'翔翔',maxLength:20},{name:'username',label:'用户名',value:profile.username||session||'xiangxiang',maxLength:20},{name:'bio',label:'简介',kind:'textarea',value:profile.bio||bio?.textContent||'',maxLength:100},{name:'avatar',label:'上传头像',type:'file',required:false}],async(values)=>{
       const nickname=values.nickname.trim(), username=values.username.trim().toLowerCase(), bioText=values.bio.trim();
       if(!nickname)throw Error('请输入网名。');if(!usernameValid(username))throw Error('用户名要 3–20 位，只能用中文、字母、数字或下划线。');
       const all=accounts();const old=read('session','');if(username!==old&&all[username])throw Error('该用户名已被使用。');
