@@ -24,14 +24,15 @@
 
   function unreachableHelp() {
     if (location.protocol === 'file:') {
-      return '双击 HTML 直接打开（file://）时浏览器不允许访问账号服务。请在 004前端开发/框架开发 里 npm start，'
-        + '再访问 http://127.0.0.1:3000/pages/auth.html';
+      /* 浏览器把 file:// 当独立来源，页面再怎么改也发不出这个请求，只能换成 http 打开 */
+      return '你现在是双击 HTML 打开的（file://），浏览器不允许这种页面访问账号服务。'
+        + '请双击 004前端开发/框架开发/双击启动.command（或在里面执行 npm start），它会自动打开 http://127.0.0.1:3000/pages/auth.html。';
     }
     return `连不上账号服务（${API_BASE}）。`
       + (location.port === '8080'
         ? `页面从 ${location.origin} 打开，属跨域：先确认后端已 npm start，`
           + '并把这个来源加进 004前端开发/框架开发/.env 的 CORS_ORIGINS 后重启。'
-        : '页面本身就是这个服务端上来的，说明进程已经退出，请在 004前端开发/框架开发 重新 npm start。');
+        : '页面本身就是这个服务端上来的，说明进程已经退出，请重新双击 双击启动.command 或在 004前端开发/框架开发 执行 npm start。');
   }
 
   class ApiFailure extends Error {
