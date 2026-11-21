@@ -5,6 +5,7 @@
 import { test, before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { randomBytes } from 'node:crypto';
+import ExcelJS from 'exceljs';
 
 /* 测试用 X-Forwarded-For 给每次调用分配独立 IP，让 IP 维度的频控互相隔离，
    也顺带把 TRUST_PROXY=true 这条分支跑一遍。必须在 import src 之前设好——
@@ -318,4 +319,64 @@ test('时间口径：库里存 UTC，出接口必须转成带 Z 的 ISO 时刻',
   assert.equal(Date.parse(iso), Date.parse(`${row.updated_at.replace(' ', 'T')}Z`), '转格式只能改表示，不能改时刻');
 
   await run(`DELETE FROM bill_records WHERE user_id = ?`, [id]);
+});
+
+test('云端账本：分类、账单、预算、资料与账号隔离', async () => {
+  await run(`CREATE TABLE IF NOT EXISTS user_avatars (user_id CHAR(36) NOT NULL PRIMARY KEY, image_data MEDIUMTEXT NOT NULL, updated_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3), CONSTRAINT fk_avatar_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`);
+  const a=await register(nameFor('a'),identity());
+  const b=await register(nameFor('b'),identity());
+  assert.equal(a.status,201);assert.equal(b.status,201);
+  const at=a.body.access_token,bt=b.body.access_token;
+  const category=await api('POST','/api/v1/data/categories',{token:at,body:{name:'自测餐饮',icon:'🍜',type:'expense'}});
+  assert.equal(category.status,201);
+  const id=category.body.id;
+  const bill=await api('POST','/api/v1/data/records',{token:at,body:{type:'expense',amount:12.34,date:'2026-11-20',categoryId:id,note:'测试午餐'}});
+  assert.equal(bill.status,201);
+  assert.equal((await api('PUT',`/api/v1/data/records/${bill.body.id}`,{token:bt,body:{type:'expense',amount:99,date:'2026-11-20',categoryId:id,note:''}})).status,400);
+  assert.equal((await api('DELETE',`/api/v1/data/records/${bill.body.id}`,{token:bt})).status,404);
+  const own=await api('GET','/api/v1/data/records?month=2026-11',{token:at});
+  const other=await api('GET','/api/v1/data/records?month=2026-11',{token:bt});
+  assert.equal(own.body.records.length,1);assert.equal(other.body.records.length,0);
+  assert.equal(own.body.records[0].note,'测试午餐');
+  assert.equal((await api('PUT',`/api/v1/data/records/${bill.body.id}`,{token:at,body:{type:'expense',amount:13.45,date:'2026-11-21',categoryId:id,note:'修改后'}})).status,200);
+  assert.equal((await api('GET','/api/v1/data/export',{token:at})).body.records[0].note,'修改后');
+  assert.equal((await api('PUT',`/api/v1/data/categories/${id}`,{token:at,body:{name:'午餐分类',icon:'🥗'}})).status,200);
+  assert.equal((await api('GET','/api/v1/data/records?month=2026-11',{token:at})).body.records[0].category,'午餐分类');
+  assert.equal((await api('PUT',`/api/v1/data/categories/${id}`,{token:at,body:{name:'自测餐饮',icon:'🍜'}})).status,200);
+  const excelResponse=await fetch(baseUrl+'/api/v1/data/export-excel?month=2026-11',{headers:{authorization:`Bearer ${at}`}});
+  assert.equal(excelResponse.status,200);
+  const workbook=new ExcelJS.Workbook(); await workbook.xlsx.load(Buffer.from(await excelResponse.arrayBuffer()));
+  assert.equal(workbook.getWorksheet('账单明细').getRow(2).getCell(3).value,'🍜 自测餐饮');
+  assert.equal((await api('PUT','/api/v1/data/budgets',{token:at,body:{month:'2026-11',amount:100}})).status,200);
+  assert.equal((await api('GET','/api/v1/data/budgets?month=2026-11',{token:bt})).body.total,null);
+  const avatar='data:image/png;base64,aGVsbG8=';
+  assert.equal((await api('PUT','/api/v1/data/profile',{token:at,body:{nickname:'新昵称',bio:'简介',avatar}})).status,200);
+  assert.equal((await api('GET','/api/v1/data/profile',{token:at})).body.profile.avatar,avatar);
+  assert.equal((await api('GET','/api/v1/data/profile',{token:bt})).body.profile.avatar,null);
+  assert.equal((await api('GET','/api/v1/data/summary?month=2026-11',{token:at})).body.expense,13.45);
+  const removedCategory=await api('DELETE',`/api/v1/data/categories/${id}`,{token:at});
+  assert.equal(removedCategory.status,200);
+  assert.equal(removedCategory.body.deleted,true);
+  assert.equal((await api('GET','/api/v1/data/categories',{token:at})).body.categories.some((item)=>item.id===id),false);
+  assert.equal((await api('GET','/api/v1/data/records?month=2026-11',{token:at})).body.records[0].category,'自测餐饮');
+  const restoredCategory=await api('POST','/api/v1/data/categories',{token:at,body:{name:'自测餐饮',icon:'🍽️',type:'expense'}});
+  assert.equal(restoredCategory.status,201);
+  assert.notEqual(restoredCategory.body.id,id);
+  assert.equal((await api('GET','/api/v1/data/analytics?month=2026-11',{token:bt})).body.rows.length,0);
+  assert.equal((await api('PUT','/api/v1/data/password',{token:at,body:{oldPassword:'wrong',newPassword:'New-pass-123'}})).status,401);
+  assert.equal((await api('PUT','/api/v1/data/password',{token:at,body:{oldPassword:PASSWORD,newPassword:'New-pass-123'}})).status,200);
+  assert.equal((await login(nameFor('a'),identity(),PASSWORD)).status,401);
+  const restored=await login(nameFor('a'),identity(),'New-pass-123');
+  assert.equal(restored.status,200);
+  assert.equal((await api('POST','/api/v1/data/account-deletion',{token:at,body:{username:'wrong',exportPrompted:true}})).status,400);
+  assert.equal((await api('POST','/api/v1/data/account-deletion',{token:at,body:{username:nameFor('a'),exportPrompted:true}})).status,200);
+  assert.equal((await api('GET','/api/v1/data/profile',{token:at})).status,401);
+  const reactivated=await login(nameFor('a'),identity(),'New-pass-123');
+  assert.equal(reactivated.status,200);
+  assert.equal((await userRow(nameFor('a'))).status,'active');
+  assert.equal((await api('DELETE',`/api/v1/data/records/${bill.body.id}`,{token:reactivated.body.access_token})).status,204);
+  assert.equal((await api('GET','/api/v1/data/records?month=2026-11',{token:reactivated.body.access_token})).body.records.length,0);
+  const newUsername=nameFor('c');
+  assert.equal((await api('PUT','/api/v1/data/profile',{token:reactivated.body.access_token,body:{username:newUsername,nickname:'新昵称',bio:'简介',avatar}})).status,200);
+  assert.equal((await api('GET','/api/v1/data/profile',{token:reactivated.body.access_token})).body.profile.username,newUsername);
 });

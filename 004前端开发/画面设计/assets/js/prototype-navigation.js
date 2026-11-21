@@ -31,6 +31,15 @@
     }
     const label = (target.textContent || '').replace(/\s+/g, '');
     const href = target.getAttribute('href');
+    if (target.tagName === 'A' && href && window.PeachModal && !target.closest('.prototype-switcher')) {
+      const linked = new URL(href, location.href);
+      if (linked.origin === location.origin && linked.pathname.endsWith('/record.html') && current !== 'record.html') {
+        event.preventDefault(); event.stopImmediatePropagation(); window.PeachModal.openRecord(); return;
+      }
+      if (linked.origin === location.origin && linked.pathname.endsWith('/budget-adjust.html') && current !== 'budget-adjust.html') {
+        event.preventDefault(); event.stopImmediatePropagation(); window.PeachModal.openBudget(); return;
+      }
+    }
     let destination;
     if (target.matches('a[href="#login"]')) destination = 'auth.html?mode=login';
     else if (target.matches('a[href="#demo"]')) destination = 'bills.html';
@@ -41,6 +50,8 @@
     if (!destination) return;
     event.preventDefault();
     event.stopImmediatePropagation();
+    if (window.PeachModal && destination.startsWith('record.html') && current !== 'record.html') { window.PeachModal.openRecord(); return; }
+    if (window.PeachModal && destination.startsWith('budget-adjust.html') && current !== 'budget-adjust.html') { window.PeachModal.openBudget(); return; }
     location.href = url(destination);
   }, true);
 

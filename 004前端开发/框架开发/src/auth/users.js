@@ -10,15 +10,17 @@ const DUP_ENTRY = 'ER_DUP_ENTRY';
 
 export async function createUser({ username, passwordHash, privacyAccepted }) {
   const sql = `
-    INSERT INTO users (id, username, password_hash, password_algo, privacy_policy_accepted_at)
-    VALUES (?, ?, ?, ?, ${privacyAccepted ? 'NOW(3)' : 'NULL'})`;
+    INSERT INTO users (id, username, password_hash, password_algo, nickname, privacy_policy_accepted_at)
+    VALUES (?, ?, ?, ?, '翔翔', ${privacyAccepted ? 'NOW(3)' : 'NULL'})`;
   try {
     await run(sql, [randomUUID(), username, passwordHash, PASSWORD_ALGO]);
   } catch (err) {
     if (err?.code === DUP_ENTRY) return null;
     throw err;
   }
-  return findForAuth(username);
+  const user = await findForAuth(username);
+  await run(`INSERT INTO categories (id,user_id,name,icon,type,sort,builtin) SELECT UUID(),?,name,icon,type,sort,1 FROM category_templates`, [user.id]);
+  return user;
 }
 
 export function findForAuth(username) {

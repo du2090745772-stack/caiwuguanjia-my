@@ -123,7 +123,7 @@
     const navGroup = page.startsWith('budget') ? 'budget' : page.startsWith('stats') ? 'stats' : page.startsWith('profile') || page === 'logout.html' ? 'profile' : page.startsWith('bills') || page === 'record.html' ? 'bills' : '';
     $$('a[data-path]').forEach((link) => { if (link.dataset.path === navGroup) link.setAttribute('aria-current', 'page'); else link.removeAttribute('aria-current'); });
     const profile = read('profile', {}); const session = read('session', '');
-    const nickname = profile.nickname || session || '桃桃';
+    const nickname = window.AuthApi?.isSignedIn() ? (profile.nickname || session || '翔翔') : '请登录';
     $$('aside').forEach((aside) => {
       const card = $('div.cursor-pointer:last-child', aside) || $$('div.cursor-pointer', aside).at(-1);
       if (card) { card.style.cursor = 'pointer'; card.onclick = () => route('profile.html'); card.setAttribute('role', 'link'); card.setAttribute('tabindex', '0'); card.onkeydown = (e) => { if (e.key === 'Enter') route('profile.html'); }; }
@@ -371,6 +371,14 @@
     const profile=read('profile',{});const session=read('session','');
     const identity=$$('h2').find((x)=>x.textContent.trim()==='桃桃酱');
     if(!identity)return;
+    if (!window.AuthApi?.isSignedIn() && !session) {
+      identity.textContent = '请登录';
+      const account = identity.parentElement?.querySelector('.font-mono'); if (account) account.textContent = '未登录';
+      const bio = identity.parentElement?.parentElement?.querySelector('p'); if (bio) bio.textContent = '登录后查看和编辑个人资料';
+      const login = document.createElement('button'); login.type = 'button'; login.className = 'app-profile-login'; login.textContent = '立即登录'; login.onclick = () => route('auth.html');
+      identity.parentElement?.parentElement?.append(login);
+      return;
+    }
     identity.textContent=profile.nickname||session||'桃桃酱';
     const account=identity.parentElement?.querySelector('.font-mono');if(account)account.textContent=`@${profile.username||session||'访客'}`;
     const bio=identity.parentElement?.parentElement?.querySelector('p');if(bio)bio.textContent=profile.bio||'认真记录每一笔生活，把普通的日子过成温柔浪漫的诗篇。';
@@ -489,7 +497,7 @@
   if(page==='record.html')initRecord();
   if(page==='budget-adjust.html')initBudgetAdjust();
   initBills();initBudget();initBudgetVariants();initProfile();initStats();
-  if(page==='logout.html'){
+  if(page==='logout.html' && !window.AuthApi?.isSignedIn()){
     $$('button').filter((button)=>button.textContent.includes('确认退出')).forEach((button)=>button.addEventListener('click',async (event)=>{
       event.preventDefault();event.stopImmediatePropagation();button.disabled=true;
       /* 退出必须让服务端一并吊销会话：只清本机 Storage 的话 Refresh Token 还能用 30 天 */

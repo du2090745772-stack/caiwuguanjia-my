@@ -147,5 +147,17 @@
     }
   }
 
-  window.AuthApi = { API_BASE, register, login, refresh, logout, session, isSignedIn, ApiFailure };
+  async function data(path, options = {}) {
+    let current = session();
+    if (!current) throw new ApiFailure('请先登录', { code:'signed_out', status:401 });
+    if (current.access_expires_at - Date.now() < 60_000) { await refresh(); current=session(); }
+    try { return await request(`/data${path}`, { method:options.method || 'GET', body:options.body, token:current.access_token }); }
+    catch (error) {
+      if (error.status !== 401) throw error;
+      await refresh();
+      return request(`/data${path}`, { method:options.method || 'GET', body:options.body, token:session().access_token });
+    }
+  }
+
+  window.AuthApi = { API_BASE, register, login, refresh, logout, data, session, isSignedIn, ApiFailure };
 })();

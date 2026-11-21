@@ -5,8 +5,9 @@
 
 import { errors } from '../http/errors.js';
 import { verifyAccessToken } from '../auth/tokens.js';
+import { findActiveSession } from '../auth/sessions.js';
 
-export function requireAuth(req, res, next) {
+export async function requireAuth(req, res, next) {
   const header = req.get('authorization') ?? '';
   const [scheme, token] = header.split(' ');
   if (!/^Bearer$/i.test(scheme ?? '') || !token) {
@@ -14,6 +15,7 @@ export function requireAuth(req, res, next) {
   }
   const decoded = verifyAccessToken(token.trim());
   if (!decoded) throw errors.signedOut('invalid_access_token');
+  if (!await findActiveSession(decoded.sessionId)) throw errors.signedOut('session_revoked');
   req.auth = decoded;
   next();
 }

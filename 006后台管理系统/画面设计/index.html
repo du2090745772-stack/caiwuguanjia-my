@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>翔翔记账 · 后台管理</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/admin.css">
+  <script defer src="assets/js/admin.js"></script>
+</head>
+<body>
+  <div id="local-launch" class="login-shell" hidden>
+    <div class="login-card">
+      <div class="brand-mark">✿</div>
+      <p class="eyebrow">PEACH JOURNAL · ADMIN</p>
+      <h1>正在连接后台</h1>
+      <p id="launch-message" class="subtle">请稍等，正在打开可用的管理页面…</p>
+      <a class="primary wide" href="http://127.0.0.1:3100/">打开后台页面 →</a>
+      <p class="login-note">若无法打开，请先双击上一级目录中的「启动后台.command」。</p>
+    </div>
+  </div>
+  <div id="login-view" class="login-shell">
+    <div class="login-decoration" aria-hidden="true">✿</div>
+    <form id="login-form" class="login-card">
+      <div class="brand-mark">✿</div>
+      <p class="eyebrow">PEACH JOURNAL · ADMIN</p>
+      <h1>欢迎回到管理空间</h1>
+      <p class="subtle">查看账号、账单与收支数据，了解每一份认真记录。</p>
+      <label>管理员账号<input name="username" autocomplete="username" required maxlength="20" placeholder="请输入管理员账号"></label>
+      <label>密码<input name="password" type="password" autocomplete="current-password" required placeholder="请输入密码"></label>
+      <p id="login-error" class="error" role="alert"></p>
+      <button class="primary wide" type="submit">登录后台 <span aria-hidden="true">→</span></button>
+      <p class="login-note">此入口仅供授权管理人员使用</p>
+    </form>
+  </div>
+  <div id="app-view" class="app-shell" hidden>
+    <aside class="sidebar">
+      <div class="sidebar-top">
+        <div class="brand"><span class="brand-mark small">✿</span><span><strong>翔翔记账</strong><small>后台管理空间</small></span></div>
+        <nav id="main-nav" aria-label="后台导航">
+          <button data-page="overview" class="nav-item active"><span>◈</span> 数据概览</button>
+          <button data-page="users" class="nav-item"><span>♙</span> 用户管理</button>
+          <button data-page="records" class="nav-item"><span>▤</span> 账单查询</button>
+          <button data-page="analytics" class="nav-item"><span>◔</span> 收支分析</button>
+          <button data-page="budgets" class="nav-item"><span>◫</span> 预算与分类</button>
+          <button data-page="system" class="nav-item"><span>⚙</span> 账号与系统</button>
+          <button data-page="exports" class="nav-item"><span>⇩</span> 数据导出</button>
+        </nav>
+      </div>
+      <div class="sidebar-foot"><span class="avatar">管</span><span><strong id="admin-name">管理员</strong><small>只读管理权限</small></span><button id="logout-button" title="退出后台" aria-label="退出后台">↗</button></div>
+    </aside>
+    <div class="content-shell">
+      <header class="topbar"><button id="menu-button" aria-label="打开菜单">☰</button><div class="breadcrumb">管理工作台 <span>/</span> <strong id="breadcrumb-name">数据概览</strong></div><div class="top-actions"><span class="live-dot"></span><span>已连接数据库</span><button id="refresh-button">↻ 刷新</button></div></header>
+      <main id="page-content" tabindex="-1"></main>
+    </div>
+  </div>
+  <div id="drawer-cover" class="drawer-cover" hidden><section id="drawer" class="drawer" role="dialog" aria-modal="true" aria-label="详情"><button id="drawer-close" aria-label="关闭详情">×</button><div id="drawer-body"></div></section></div>
+  <div id="toast" role="status" aria-live="polite"></div>
+  <script>
+    if (location.protocol === 'file:') {
+      document.getElementById('login-view').hidden = true;
+      document.getElementById('local-launch').hidden = false;
+      fetch('http://127.0.0.1:3100/', { mode: 'no-cors', cache: 'no-store' })
+        .then(() => location.replace('http://127.0.0.1:3100/'))
+        .catch(() => {
+          document.getElementById('launch-message').textContent = '后台服务还没启动。请双击上一级目录中的「启动后台.command」，然后再打开此页面。';
+        });
+    }
+  </script>
+</body>
+</html>

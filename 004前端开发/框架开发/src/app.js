@@ -3,6 +3,7 @@ import { existsSync } from 'node:fs';
 import { config } from './config.js';
 import { ping } from './db.js';
 import { authRouter } from './auth/routes.js';
+import { dataRouter } from './data/routes.js';
 import { cors } from './http/cors.js';
 import { errorHandler, notFoundHandler } from './http/errors.js';
 
@@ -24,6 +25,7 @@ export function createApp() {
     app.use(express.static(config.staticDir));
   }
 
+  app.use('/api/v1/data', express.json({ limit: '256kb' }));
   app.use(express.json({ limit: '16kb' }));
 
   app.get('/healthz', async (req, res) => {
@@ -32,6 +34,7 @@ export function createApp() {
   });
 
   app.use('/api/v1/auth', authRouter);
+  app.use('/api/v1/data', dataRouter);
 
   app.use(notFoundHandler);
   app.use(errorHandler);

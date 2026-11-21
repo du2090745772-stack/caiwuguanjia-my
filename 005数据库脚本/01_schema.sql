@@ -388,6 +388,15 @@ FROM `bill_records`
 WHERE `bill_records`.`deleted_at` IS NULL
 GROUP BY `bill_records`.`user_id`, DATE_FORMAT(`bill_records`.`record_date`, '%Y-%m');
 
+-- 个人头像由账号独立存储，上传时前端先裁剪压缩为 160×160 图片。
+-- 已部署数据库可单独执行此幂等语句；服务启动时也会确保此表存在。
+CREATE TABLE IF NOT EXISTS `user_avatars` (
+  `user_id` CHAR(36) NOT NULL PRIMARY KEY,
+  `image_data` MEDIUMTEXT NOT NULL,
+  `updated_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
+  CONSTRAINT `fk_avatar_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 -- =====================================================================
 -- 本地重置用：删表顺序与建表相反，外键逐层先行回收。默认注释掉，
 -- 确认是本地库再手工放开执行；生产环境一律走迁移工具，不放任何 DROP。
@@ -404,10 +413,9 @@ GROUP BY `bill_records`.`user_id`, DATE_FORMAT(`bill_records`.`record_date`, '%Y
 -- DROP TABLE IF EXISTS `auth_login_attempts`;
 -- DROP TABLE IF EXISTS `auth_sessions`;
 -- DROP TABLE IF EXISTS `account_deletions`;
+-- DROP TABLE IF EXISTS `user_avatars`;
 -- DROP TABLE IF EXISTS `users`;
 -- DROP VIEW IF EXISTS `v_bill_monthly_summary`;
--- =====================================================================
-
 -- =====================================================================
 -- 排期外的预留说明（不在本脚本落表，避免空转结构）
 --   · 绑定邮箱/手机号找回密码（V1.1，POST /auth/password/reset）→ 届时给 users 加
