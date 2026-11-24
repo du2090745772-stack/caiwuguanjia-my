@@ -7,6 +7,13 @@
   const read = (key, fallback) => { try { return JSON.parse(localStorage.getItem(`pj.${key}`)) ?? fallback; } catch { return fallback; } };
   const write = (key, value) => localStorage.setItem(`pj.${key}`, JSON.stringify(value));
   const route = (file) => { location.href = file; };
+  async function exitToGuest() {
+    try { await window.AuthApi?.logout(); } catch { /* 过期会话也允许退出本机 */ }
+    window.AuthApi?.enterGuest();
+    localStorage.removeItem('pj.profile');
+    route('bills.html');
+  }
+  window.PeachExitToGuest = exitToGuest;
   const money = (n) => `¥${Number(n || 0).toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   const today = () => new Date().toLocaleDateString('sv-SE');
   const period = () => read('period', today().slice(0,7));
@@ -122,7 +129,7 @@
     $$('button').filter((button) => $('.material-symbols-outlined', button)?.textContent.trim() === 'notifications').forEach((button) => button.remove());
     const navGroup = page.startsWith('budget') ? 'budget' : page.startsWith('stats') ? 'stats' : page.startsWith('profile') || page === 'logout.html' ? 'profile' : page.startsWith('bills') || page === 'record.html' ? 'bills' : '';
     $$('a[data-path]').forEach((link) => { if (link.dataset.path === navGroup) link.setAttribute('aria-current', 'page'); else link.removeAttribute('aria-current'); });
-    const profile = read('profile', {}); const session = read('session', '');
+    const profile = window.AuthApi?.isSignedIn() ? read('profile', {}) : read('guestProfile', {}); const session = read('session', '');
     const nickname = window.AuthApi?.isSignedIn() ? (profile.nickname || session || '翔翔') : '请登录';
     $$('aside').forEach((aside) => {
       const card = $('div.cursor-pointer:last-child', aside) || $$('div.cursor-pointer', aside).at(-1);
@@ -133,23 +140,19 @@
     });
     $$('header').forEach((header) => {
       const avatar = header.querySelector('div.rounded-full:has(.material-symbols-outlined)');
-      if (avatar && avatar.textContent.includes('person')) { avatar.style.cursor = 'pointer'; avatar.onclick = () => route('profile.html'); renderAvatar(avatar, profile.avatar || defaultAvatar); }
+      if (avatar && avatar.textContent.includes('person')) avatar.remove();
       const brand = header.querySelector('img'); if (brand) { brand.style.cursor = 'pointer'; brand.onclick = () => route('landing.html'); brand.alt = '返回着陆页'; }
     });
     if (page === 'bills.html') {
       const brand = $('aside .p-space-lg');
       if (brand) { brand.style.cursor = 'pointer'; brand.onclick = () => route('landing.html'); }
     }
-    const accountLinks = $('.prototype-account-links');
-    if (accountLinks && session) {
-      accountLinks.querySelector('span').textContent = `已登录 @${session} · 账单与资料保存在本机浏览器`;
-      $$('a', accountLinks).filter((link) => ['立即注册','登录'].includes(link.textContent.trim())).forEach((link) => link.remove());
-    }
   }
   function renderAvatar(container, data) {
     if (!data) return;
+    container.classList.add('app-avatar-frame');
     container.textContent = '';
-    const img = document.createElement('img'); img.src = data; img.alt = '个人头像'; img.className = 'app-avatar'; img.style.cssText = 'width:100%;height:100%'; container.append(img);
+    const img = document.createElement('img'); img.src = data; img.alt = '个人头像'; img.className = 'app-avatar'; container.append(img);
   }
 
   function initRecord() {
@@ -161,7 +164,11 @@
     const continuous = $('#continuous-toggle'); if (continuous) { continuous.checked = false; continuous.closest('label')?.remove(); }
     const selected = { type: 'expense', category: '餐饮', icon: '🍜' };
     const defaults = { expense: [['餐饮','🍜'],['交通','🚌'],['购物','🛍️'],['住房','🏠'],['娱乐','🎮'],['医疗','💊'],['人情','🎁'],['学习','📚'],['其他','📌']], income: [['工资收入','💰'],['兼职收入','💼'],['理财收益','📈'],['红包','🧧'],['退款','↩️'],['其他收入','✨']] };
-    const custom = () => read('categories', { expense: [], income: [] });
+    const custom = () => {
+      const saved = read('categories', { expense: [], income: [] });
+      if (!Array.isArray(saved)) return saved;
+      return Object.fromEntries(['expense', 'income'].map((type) => [type, saved.filter((item) => item.type === type && !defaults[type].some(([name]) => name === item.name)).map((item) => [item.name, item.icon])]));
+    };
     function renderCategories() {
       grid.innerHTML = '';
       for (const [name, icon] of [...defaults[selected.type], ...custom()[selected.type]]) {
@@ -177,7 +184,10 @@
         name = name.trim(); icon = icon.trim() || '🌸';
         if (!name) throw Error('请输入分类名称。');
         if ([...defaults[selected.type],...custom()[selected.type]].some(([existing]) => existing === name)) throw Error('分类名称已存在。');
-        const data = custom(); data[selected.type].push([name,icon]); write('categories',data); selected.category = name; selected.icon = icon; $('#current-category-label').textContent = name; renderCategories();
+        const data = read('categories', null);
+        if (Array.isArray(data)) { data.push({ id: crypto.randomUUID(), type: selected.type, name, icon }); write('categories', data); }
+        else { const categories = custom(); categories[selected.type].push([name, icon]); write('categories', categories); }
+        selected.category = name; selected.icon = icon; $('#current-category-label').textContent = name; renderCategories();
       });
       grid.append(manage);
     }
@@ -364,24 +374,31 @@
   function initProfile() {
     if (!page.startsWith('profile') && page!=='logout.html') return;
     $$('li').filter((item)=>item.textContent.includes('退出当前账号')).forEach((item)=>{
-      item.onclick=()=>route('logout.html');
-      item.setAttribute('role','link');item.setAttribute('tabindex','0');
-      item.onkeydown=(event)=>{if(event.key==='Enter')route('logout.html');};
+      item.removeAttribute('onclick');
+      item.setAttribute('role','button');item.setAttribute('tabindex','0');
+      item.addEventListener('click', (event)=>{ event.preventDefault(); event.stopImmediatePropagation(); exitToGuest(); }, true);
+      item.onkeydown=(event)=>{if(event.key==='Enter' || event.key===' '){event.preventDefault();exitToGuest();}};
     });
-    const profile=read('profile',{});const session=read('session','');
+    const signedIn=Boolean(window.AuthApi?.isSignedIn());
+    const profile=read(signedIn?'profile':'guestProfile',{});const session=read('session','');
     const identity=$$('h2').find((x)=>x.textContent.trim()==='桃桃酱');
     if(!identity)return;
-    if (!window.AuthApi?.isSignedIn() && !session) {
-      identity.textContent = '请登录';
-      const account = identity.parentElement?.querySelector('.font-mono'); if (account) account.textContent = '未登录';
-      const bio = identity.parentElement?.parentElement?.querySelector('p'); if (bio) bio.textContent = '登录后查看和编辑个人资料';
+    if (!signedIn) {
+      identity.textContent = profile.nickname || '请登录';
+      const account = identity.parentElement?.querySelector('.font-mono'); if (account) account.textContent = '本机体验';
+      const bio = identity.parentElement?.parentElement?.querySelector('p'); if (bio) bio.textContent = profile.bio || '免登录体验，记录仅保存在本机浏览器';
+      const avatar=identity.closest('.flex.items-start')?.querySelector('img')||identity.parentElement?.parentElement?.parentElement?.querySelector('img');
+      if (avatar && profile.avatar) avatar.src=profile.avatar;
       const login = document.createElement('button'); login.type = 'button'; login.className = 'app-profile-login'; login.textContent = '立即登录'; login.onclick = () => route('auth.html');
       identity.parentElement?.parentElement?.append(login);
-      return;
+      const verified = $$('*').find((node) => !node.children.length && node.textContent.trim() === '已认证手友');
+      if (verified) verified.textContent = '本机体验';
+      const passwordEntry = $$('li').find((item) => item.textContent.includes('修改登录密码'));
+      if (passwordEntry) { passwordEntry.onclick = (event) => { event.preventDefault(); event.stopImmediatePropagation(); route('auth.html'); }; passwordEntry.setAttribute('aria-label', '登录后修改密码'); }
     }
-    identity.textContent=profile.nickname||session||'桃桃酱';
-    const account=identity.parentElement?.querySelector('.font-mono');if(account)account.textContent=`@${profile.username||session||'访客'}`;
-    const bio=identity.parentElement?.parentElement?.querySelector('p');if(bio)bio.textContent=profile.bio||'认真记录每一笔生活，把普通的日子过成温柔浪漫的诗篇。';
+    if (signedIn) identity.textContent=profile.nickname||session||'桃桃酱';
+    const account=identity.parentElement?.querySelector('.font-mono');if(account && signedIn)account.textContent=`@${profile.username||session||'访客'}`;
+    const bio=identity.parentElement?.parentElement?.querySelector('p');if(bio && signedIn)bio.textContent=profile.bio||'认真记录每一笔生活，把普通的日子过成温柔浪漫的诗篇。';
     const avatar=identity.closest('.flex.items-start')?.querySelector('img')||identity.parentElement?.parentElement?.parentElement?.querySelector('img');
     if(avatar)avatar.src=profile.avatar||defaultAvatar;
     const logoutAvatar=$('#modal-logout-box img');if(logoutAvatar)logoutAvatar.src=profile.avatar||defaultAvatar;
@@ -395,9 +412,9 @@
       /* 用户名归账号服务管，本机改名等于换成另一个账号（ACC-04 规则6），所以这里不开放编辑 */
       const updated={...profile,nickname,bio:bioText};
       const file=$('#app-avatar')?.files[0];
-      if(file){if(!file.type.startsWith('image/'))throw Error('请选择图片文件。');if(file.size>5*1024*1024)throw Error('头像请小于 5 MB。');updated.avatar=await new Promise((resolve,reject)=>{const image=new Image();image.onload=()=>{const canvas=document.createElement('canvas');canvas.width=160;canvas.height=160;const ctx=canvas.getContext('2d');const size=Math.min(image.width,image.height);ctx.drawImage(image,(image.width-size)/2,(image.height-size)/2,size,size,0,0,160,160);resolve(canvas.toDataURL('image/jpeg',.82));};image.onerror=()=>reject(Error('头像图片无法读取。'));image.src=URL.createObjectURL(file);});}
-      write('profile',updated);
-      const profiles=read('profiles',{});if(updated.username)profiles[updated.username]=updated;write('profiles',profiles);
+      if(file){if(!file.type.startsWith('image/'))throw Error('请选择图片文件。');updated.avatar=await new Promise((resolve,reject)=>{const image=new Image();const url=URL.createObjectURL(file);image.onload=()=>{URL.revokeObjectURL(url);const canvas=document.createElement('canvas');canvas.width=160;canvas.height=160;const ctx=canvas.getContext('2d');const size=Math.min(image.width,image.height);ctx.drawImage(image,(image.width-size)/2,(image.height-size)/2,size,size,0,0,160,160);resolve(canvas.toDataURL('image/jpeg',.75));};image.onerror=()=>{URL.revokeObjectURL(url);reject(Error('头像图片无法读取。'));};image.src=url;});}
+      write(signedIn?'profile':'guestProfile',updated);
+      if(signedIn){const profiles=read('profiles',{});if(updated.username)profiles[updated.username]=updated;write('profiles',profiles);}
       location.reload();
     });
   }
@@ -496,7 +513,8 @@
   if(page==='auth.html'||page==='register.html')initAuth();
   if(page==='record.html')initRecord();
   if(page==='budget-adjust.html')initBudgetAdjust();
-  initBills();initBudget();initBudgetVariants();initProfile();initStats();
+  // 流水、预算、统计统一由 cloud-native.js 渲染；游客与登录态使用同一套页面行为。
+  initBudgetVariants();initProfile();
   if(page==='logout.html' && !window.AuthApi?.isSignedIn()){
     $$('button').filter((button)=>button.textContent.includes('确认退出')).forEach((button)=>button.addEventListener('click',async (event)=>{
       event.preventDefault();event.stopImmediatePropagation();button.disabled=true;

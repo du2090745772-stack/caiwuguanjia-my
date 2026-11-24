@@ -11,10 +11,6 @@
 .prototype-switcher__links a:hover,.prototype-switcher__links a:focus-visible{background:#ffd9e0;outline:2px solid #9b3f5a;outline-offset:1px}
 .prototype-switcher__links a[aria-current="page"]{background:#9b3f5a;color:white}
 .prototype-mobile-nav{display:none}
-.prototype-account-links{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin:16px 24px;padding:12px 16px;border-radius:14px;background:#fff0f5;color:#372e32;font:14px/1.4 system-ui,-apple-system,"PingFang SC",sans-serif}
-.prototype-account-links strong{color:#79243f}
-.prototype-account-links a{padding:6px 10px;border-radius:999px;background:#fff;color:#79243f;text-decoration:none}
-.prototype-account-links a:hover{background:#ffd9e0}
 @media(max-width:767px){
   body>aside{display:none!important}
   body>div[class*="pl-[260px]"]{padding-left:0!important}

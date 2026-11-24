@@ -9,6 +9,32 @@
   const read = (key, fallback) => { try { return JSON.parse(localStorage.getItem(`pj.${key}`)) ?? fallback; } catch { return fallback; } };
   const write = (key, value) => localStorage.setItem(`pj.${key}`, JSON.stringify(value));
   const defaultCategories = () => Object.entries({ expense: [['餐饮','🍜'], ['交通','🚌'], ['购物','🛍️'], ['住房','🏠'], ['娱乐','🎮'], ['医疗','💊'], ['人情','🎁'], ['学习','📚'], ['其他','📌']], income: [['工资','💰'], ['理财','📈'], ['兼职','💼'], ['红包','🧧'], ['其他','📌']] }).flatMap(([type, list]) => list.map(([name, icon]) => ({ id: `${type}-${name}`, type, name, icon })));
+  function guestCategories() {
+    const stored = read('categories', null);
+    if (Array.isArray(stored)) return stored.filter((item) => item && ['expense', 'income'].includes(item.type) && item.name);
+    const defaults = defaultCategories();
+    if (stored && typeof stored === 'object') {
+      for (const type of ['expense', 'income']) {
+        for (const item of Array.isArray(stored[type]) ? stored[type] : []) {
+          const [name, icon] = Array.isArray(item) ? item : [item?.name, item?.icon];
+          if (name && !defaults.some((category) => category.type === type && category.name === name))
+            defaults.push({ id: `${type}-${name}`, type, name, icon: icon || '📌' });
+        }
+      }
+    }
+    return defaults;
+  }
+  function renameGuestCategory(category, name) {
+    if (category.name === name) return;
+    const records = read('records', []);
+    for (const record of records) if (record.type === category.type && record.category === category.name) record.category = name;
+    write('records', records);
+    const budgets = read('budgetsByMonth', {});
+    for (const budget of Object.values(budgets)) if (budget.categories && Object.hasOwn(budget.categories, category.name)) {
+      budget.categories[name] = budget.categories[category.name]; delete budget.categories[category.name];
+    }
+    write('budgetsByMonth', budgets);
+  }
   let active = null;
 
   async function template(file, selector) {
@@ -96,7 +122,7 @@
   }
   async function manageCategories({ initialType = 'expense', onChange, onClose } = {}) {
     const signedIn = api?.isSignedIn();
-    const categories = signedIn ? (await api.data('/categories')).categories : read('categories', defaultCategories());
+    const categories = signedIn ? (await api.data('/categories')).categories : guestCategories();
     let changed = false;
     const { box, dismiss } = smallDialog('管理分类', () => { if (changed) onClose?.(); });
     let type = initialType;
@@ -150,14 +176,18 @@
       const card = await template('record.html', '#quick-entry-modal');
       if (!card) throw Error('记账弹窗不存在');
       mount(card, '记一笔');
+      $('#btn-close-modal', card).onclick = close;
+      $('#btn-cancel', card).onclick = close;
       const amount = $('#amount-input', card); amount.value = '';
       $('#note-input', card).value = '';
+      const noteCounter = $('#note-char-counter', card);
+      if (noteCounter) { noteCounter.textContent = '0/100'; $('#note-input', card).addEventListener('input', (event) => { noteCounter.textContent = `${event.target.value.length}/100`; }); }
       $('#continuous-toggle', card)?.closest('label')?.remove();
       const grid = $('#category-grid', card);
-      const tiles = grid.parentElement.nextElementSibling.querySelector('.grid.grid-cols-2');
+      const tiles = grid?.parentElement?.nextElementSibling?.querySelector('.grid.grid-cols-2');
       if (tiles) { tiles.className = 'app-date-wallet'; tiles.innerHTML = '<label>日期<button type="button" id="record-date-button"></button><input id="record-date" type="hidden"></label>'; $('#record-date', tiles).value = today(); $('#record-date-button', tiles).textContent = today(); $('#record-date-button', tiles).onclick = () => datePicker($('#record-date', tiles), (value) => { $('#record-date-button', tiles).textContent = value; }); }
       const signedIn = api?.isSignedIn();
-      const categories = signedIn ? (await api.data('/categories')).categories : read('categories', defaultCategories());
+      const categories = signedIn ? (await api.data('/categories')).categories : guestCategories();
       let type = 'expense', selected = categories.find((item) => item.type === type);
       const pillClass = 'cat-pill flex flex-col items-center justify-center rounded-xl bg-surface-container-low/40 text-on-surface-variant transition-all duration-150';
       const paint = () => {
@@ -181,6 +211,7 @@
               if (!nextName || !nextIcon) { notify('分类名称和图标不能为空'); saving = false; return; }
               try {
                 const updated = signedIn ? await api.data(`/categories/${category.id}`, { method: 'PUT', body: { name: nextName, icon: nextIcon } }) : { ...category, name: nextName, icon: nextIcon };
+                if (!signedIn) renameGuestCategory(category, updated.name);
                 Object.assign(category, updated); if (!signedIn) write('categories', categories);
                 paint();
               } catch (cause) { notify(cause.message); saving = false; }
@@ -229,7 +260,7 @@
         } catch (error) { notify(error.message); }
       };
       fit(); requestAnimationFrame(fit); amount.focus();
-    } catch (error) { notify(error.message, document.body); }
+    } catch (error) { close(); notify(error.message, document.body); }
   }
 
   async function openBudget({ categoryId = null, source = 'budget.html' } = {}) {
@@ -242,13 +273,13 @@
       const [budget, summary, categories] = signedIn ? await Promise.all([
         api.data(`/budgets?month=${period}`), api.data(`/summary?month=${period}`), api.data('/categories'),
       ]) : (() => {
-        const guestCategories = read('categories', defaultCategories());
+        const categoryList = guestCategories();
         const guestRecords = read('records', []).filter((r) => r.date?.startsWith(period));
-        const guestBudget = read('budgetsByMonth', {})[period] || { total: 4500, categories: {} };
+        const guestBudget = read('budgetsByMonth', {})[period] || { total: null, categories: {} };
         return [
-          { total: guestBudget.total, categories: guestCategories.map((item) => ({ id: item.id, amount: guestBudget.categories?.[item.name] })).filter((item) => item.amount != null) },
-          { expense: guestRecords.filter((r) => r.type === 'expense').reduce((sum, r) => sum + Number(r.amount), 0), income: guestRecords.filter((r) => r.type === 'income').reduce((sum, r) => sum + Number(r.amount), 0), categories: guestCategories.map((item) => ({ id: item.id, amount: guestRecords.filter((r) => r.type === 'expense' && r.category === item.name).reduce((sum, r) => sum + Number(r.amount), 0) })) },
-          { categories: guestCategories },
+          { total: guestBudget.total, categories: categoryList.map((item) => ({ id: item.id, amount: guestBudget.categories?.[item.name] })).filter((item) => item.amount != null) },
+          { expense: guestRecords.filter((r) => r.type === 'expense').reduce((sum, r) => sum + Number(r.amount), 0), income: guestRecords.filter((r) => r.type === 'income').reduce((sum, r) => sum + Number(r.amount), 0), categories: categoryList.map((item) => ({ id: item.id, amount: guestRecords.filter((r) => r.type === 'expense' && r.category === item.name).reduce((sum, r) => sum + Number(r.amount), 0) })) },
+          { categories: categoryList },
         ];
       })();
       const category = categories.categories.find((item) => item.id === categoryId);
@@ -320,12 +351,12 @@
         if (!Number.isFinite(amount) || amount <= 0) { notify('请输入大于 0 的预算金额'); return; }
         try {
           if (signedIn) await api.data('/budgets', { method: 'PUT', body: { month: period, amount, categoryId: category?.id } });
-          else { const data = read('budgetsByMonth', {}); const currentBudget = data[period] || { total: 4500, categories: {} }; if (category) currentBudget.categories[category.name] = amount; else currentBudget.total = amount; data[period] = currentBudget; write('budgetsByMonth', data); }
+          else { const data = read('budgetsByMonth', {}); const currentBudget = data[period] || { total: null, categories: {} }; if (category) currentBudget.categories[category.name] = amount; else currentBudget.total = amount; data[period] = currentBudget; write('budgetsByMonth', data); }
           close(); location.reload();
         } catch (error) { notify(error.message); }
       };
       recalc(); fit(); requestAnimationFrame(fit); input.focus();
-    } catch (error) { notify(error.message, document.body); }
+    } catch (error) { close(); notify(error.message, document.body); }
   }
 
   window.PeachModal = { openRecord, openBudget, manageCategories, close };

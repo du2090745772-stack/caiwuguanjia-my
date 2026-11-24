@@ -1,0 +1,17 @@
+{
+  "name": "daily-ledger-test-workspace",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "npm run test:backend:smoke && npm run test:uni && npm run test:web",
+    "test:web": "playwright test --config=tests/web/playwright.config.mjs",
+    "test:backend:smoke": "node scripts/run-node-tests.mjs backend",
+    "test:backend:integration": "node scripts/run-backend-integration.mjs",
+    "test:uni": "node scripts/run-node-tests.mjs uni",
+    "test:uni:build": "node scripts/run-uni-build.mjs"
+    ,"report:html": "node scripts/generate-html-report.mjs"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.56.1"
+  }
+}

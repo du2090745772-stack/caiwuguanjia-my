@@ -26,6 +26,9 @@
     if (target.matches('a[data-path]') && routes[target.dataset.path]) {
       event.preventDefault();
       event.stopImmediatePropagation();
+      if (current === 'landing.html' && target.dataset.path === 'bills') {
+        window.AuthApi?.enterGuest();
+      }
       location.href = target.href;
       return;
     }
@@ -117,16 +120,6 @@
       mobileNav.append(link);
     }
     document.body.append(mobileNav);
-  }
-
-  if (['profile.html', 'profile-account.html', 'logout.html'].includes(current)) {
-    const main = document.querySelector('main');
-    if (main) {
-      const accountLinks = document.createElement('div');
-      accountLinks.className = 'prototype-account-links';
-      accountLinks.innerHTML = `<strong>账号与数据</strong><span>账号和资料保存在本机浏览器</span><a href="${url('register.html')}">立即注册</a><a href="${url('auth.html')}">登录</a><a href="${url('logout.html')}">退出登录确认</a>`;
-      main.prepend(accountLinks);
-    }
   }
 
 })();

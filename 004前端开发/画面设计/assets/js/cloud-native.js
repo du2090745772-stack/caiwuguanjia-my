@@ -1,11 +1,53 @@
 (() => {
   'use strict';
   const api = window.AuthApi;
-  if (!api?.isSignedIn()) return;
+  const signedIn = Boolean(api?.isSignedIn());
   const page = location.pathname.split('/').pop();
   const $ = (s, root = document) => root.querySelector(s);
   const $$ = (s, root = document) => [...root.querySelectorAll(s)];
-  const req = (path, method = 'GET', body) => api.data(path, { method, body });
+  const local = (key, fallback) => { try { return JSON.parse(localStorage.getItem(`pj.${key}`)) ?? fallback; } catch { return fallback; } };
+  const saveLocal = (key, value) => localStorage.setItem(`pj.${key}`, JSON.stringify(value));
+  const guestCategories = () => {
+    const stored = local('categories', null);
+    if (Array.isArray(stored)) return stored;
+    const defaults = Object.entries({ expense: [['餐饮','🍜'],['交通','🚌'],['购物','🛍️'],['住房','🏠'],['娱乐','🎮'],['医疗','💊'],['人情','🎁'],['学习','📚'],['其他','📌']], income: [['工资','💰'],['理财','📈'],['兼职','💼'],['红包','🧧'],['其他','📌']] }).flatMap(([type, list]) => list.map(([name, icon]) => ({ id: `${type}-${name}`, type, name, icon })));
+    for (const type of ['expense', 'income']) for (const entry of Array.isArray(stored?.[type]) ? stored[type] : []) {
+      const [name, icon] = Array.isArray(entry) ? entry : [entry?.name, entry?.icon];
+      if (name && !defaults.some((item) => item.type === type && item.name === name)) defaults.push({ id: `${type}-${name}`, type, name, icon: icon || '📌' });
+    }
+    return defaults;
+  };
+  const guestReq = async (path, method = 'GET', body) => {
+    const url = new URL(path, location.origin);
+    const selectedMonth = url.searchParams.get('month') || month;
+    const categories = guestCategories();
+    const records = local('records', []).filter((item) => item.date?.startsWith(selectedMonth)).map((item) => ({ ...item, categoryId: item.categoryId || categories.find((category) => category.type === item.type && category.name === item.category)?.id || `${item.type}-${item.category}` }));
+    const storedBudget = local('budgetsByMonth', {})[selectedMonth] || { total: null, categories: {} };
+    if (url.pathname === '/categories') return { categories };
+    if (url.pathname === '/records') return { records: records.sort((a, b) => b.date.localeCompare(a.date)) };
+    if (url.pathname === '/analytics') return {};
+    if (url.pathname === '/budgets') {
+      if (method === 'PUT') {
+        const all = local('budgetsByMonth', {}); const current = all[body.month] || { total: null, categories: {} };
+        const category = categories.find((item) => item.id === body.categoryId);
+        if (category) current.categories[category.name] = body.amount; else current.total = body.amount;
+        all[body.month] = current; saveLocal('budgetsByMonth', all);
+      }
+      const budget = local('budgetsByMonth', {})[selectedMonth] || storedBudget;
+      return { total: budget.total, categories: categories.filter((item) => budget.categories?.[item.name] != null).map((item) => ({ id: item.id, amount: Number(budget.categories[item.name]) })) };
+    }
+    if (url.pathname === '/summary') {
+      const expense = records.filter((item) => item.type === 'expense').reduce((sum, item) => sum + Number(item.amount), 0);
+      const income = records.filter((item) => item.type === 'income').reduce((sum, item) => sum + Number(item.amount), 0);
+      const archived = records.filter((item) => item.type === 'expense' && !categories.some((category) => category.type === 'expense' && category.name === item.category)).map((item) => ({ id: item.categoryId, type: 'expense', name: item.category, icon: item.icon || '📌' }));
+      const groups = [...categories.filter((item) => item.type === 'expense'), ...archived.filter((item, index, all) => all.findIndex((entry) => entry.name === item.name) === index)].map((item) => ({ ...item, amount: records.filter((record) => record.type === 'expense' && record.category === item.name).reduce((sum, record) => sum + Number(record.amount), 0) }));
+      const daily = [...new Set(records.filter((item) => item.type === 'expense').map((item) => item.date))].map((date) => ({ date, amount: records.filter((item) => item.type === 'expense' && item.date === date).reduce((sum, item) => sum + Number(item.amount), 0) }));
+      return { expense, income, balance: income - expense, budget: storedBudget.total, categories: groups, daily };
+    }
+    if (url.pathname === '/export') return { records: local('records', []) };
+    throw Error('此操作需要登录账号');
+  };
+  const req = (path, method = 'GET', body) => signedIn ? api.data(path, { method, body }) : guestReq(path, method, body);
   const money = (n) => `¥${Number(n || 0).toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   const today = () => new Date().toLocaleDateString('sv-SE');
   const month = (() => { try { return JSON.parse(localStorage.getItem('pj.period')) || today().slice(0, 7); } catch { return today().slice(0, 7); } })();
@@ -44,11 +86,32 @@
     anchor?.prepend(panel);
     return panel;
   };
+  function syncGuestProfile() {
+    const all = local('records', []);
+    const dates = new Set(all.map((item) => item.date));
+    const cursor = new Date(); let streak = 0;
+    if (!dates.has(today())) cursor.setDate(cursor.getDate() - 1);
+    while (dates.has(cursor.toLocaleDateString('sv-SE'))) { streak++; cursor.setDate(cursor.getDate() - 1); }
+    const savings = all.reduce((sum, item) => sum + (item.type === 'income' ? Number(item.amount) : -Number(item.amount)), 0);
+    const streakCard = leaf('累计打卡坚持')?.closest('.rounded-3xl');
+    const detailCard = leaf('手账明细条目')?.closest('.rounded-3xl');
+    if (streakCard?.querySelector('.font-numeric-hero')) streakCard.querySelector('.font-numeric-hero').textContent = String(streak);
+    if (detailCard?.querySelector('.font-numeric-hero')) detailCard.querySelector('.font-numeric-hero').textContent = String(all.length);
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT); let node;
+    while ((node = walker.nextNode())) node.textContent = node.textContent
+      .replace(/连续打卡\s*42\s*天/g, `连续打卡 ${streak} 天`)
+      .replace(/连续记录\s*42\s*天/g, `连续记录 ${streak} 天`)
+      .replace(/42\s*天/g, `${streak} 天`)
+      .replace(/156\s*笔/g, `${all.length} 笔`)
+      .replace(/42\s*枚/g, `${streak} 枚`)
+      .replace('9,017.50', money(savings).slice(1))
+      .replace('超越 92% 手友', '按本机账单统计')
+      .replace('已达成 112%', '累计净结余')
+      .replace('支出 138 笔 · 收入 18 笔', `支出 ${all.filter((item) => item.type === 'expense').length} 笔 · 收入 ${all.filter((item) => item.type === 'income').length} 笔`);
+  }
   async function syncProfile() {
     const { profile } = await req('/profile');
     const name = profile.nickname || '翔翔';
-    const accountNote = $('.prototype-account-links span');
-    if (accountNote) accountNote.textContent = `已登录 @${profile.username} · 数据已保存至数据库`;
     const head = page.startsWith('profile') || page === 'logout.html' ? $('main h2') : null;
     if (head) head.textContent = name;
     const username = head?.parentElement?.querySelector('.font-mono');
@@ -63,7 +126,8 @@
       .replace('连续记账128天', `累计记账${profile.activeDays}天`)
       .replace('数据存本机 · 安全无忧', '数据已同步到数据库')
       .replace('未登录 · 点此上云备份', `已登录 @${profile.username}`);
-    $$('aside .w-9.h-9, header .w-8.h-8').forEach((avatar) => {
+    $$('aside .w-9.h-9').forEach((avatar) => {
+      avatar.classList.add('app-avatar-frame');
       avatar.textContent = '';
       if (profile.avatar) { const img = document.createElement('img'); img.src = profile.avatar; img.alt = '个人头像'; img.className = 'app-avatar'; avatar.append(img); }
       else avatar.textContent = '翔';
@@ -267,9 +331,10 @@
     cardMetric('本月总支出', money(summary.expense)); cardMetric('本月总收入', money(summary.income)); cardMetric('本月结余', money(summary.balance));
     const remaining = summary.budget == null ? null : summary.budget - summary.expense;
     const percent = summary.budget ? summary.expense / summary.budget * 100 : 0;
+    const daysLeft = month === today().slice(0, 7) ? Math.max(1, new Date(Number(month.slice(0,4)), Number(month.slice(5)), 0).getDate() - Number(today().slice(8)) + 1) : new Date(Number(month.slice(0,4)), Number(month.slice(5)), 0).getDate();
     const content = document.createTreeWalker($('main'), NodeFilter.SHOW_TEXT); let node;
     while ((node = content.nextNode())) node.textContent = node.textContent
-      .replaceAll('¥12,000 + 二手转让 ¥500', `数据库收入 ${money(summary.income)}`)
+      .replaceAll('¥12,000 + 二手转让 ¥500', `${signedIn ? '数据库' : '本机'}收入 ${money(summary.income)}`)
       .replaceAll('¥3,482.50', money(summary.expense))
       .replaceAll('¥1,017.50', remaining == null ? '未设置' : money(remaining))
       .replaceAll('¥4,500.00', summary.budget == null ? '未设置' : money(summary.budget))
@@ -277,6 +342,7 @@
       .replaceAll('72.1%', summary.income ? `${Math.max(0, summary.balance / summary.income * 100).toFixed(1)}%` : '0.0%')
       .replaceAll('112%', '按账单统计')
       .replaceAll('¥78.20', remaining == null ? '未设置' : money(Math.max(0, remaining) / Math.max(1, new Date(Number(month.slice(0,4)), Number(month.slice(5)), 0).getDate())))
+      .replace('距离月底还有 13 天', `距离月底还有 ${daysLeft - 1} 天`)
       .replace('较上月同期减少 ¥492.00', '按本月账单实时统计')
       .replace('主要为薪酬', '按本月账单统计');
     $$('*').filter((n) => !n.children.length && n.textContent.trim() === '¥4,500.00').forEach((n) => n.textContent = summary.budget == null ? '未设置' : money(summary.budget));
@@ -290,6 +356,21 @@
   async function budget() {
     const [budget, summary, categories] = await Promise.all([req(`/budgets?month=${month}`), req(`/summary?month=${month}`), req('/categories')]);
     const spent = summary.expense; const remaining = budget.total == null ? null : budget.total - spent;
+    const alerts = categories.categories.filter((cat) => cat.type === 'expense').map((cat) => {
+      const allocation = budget.categories.find((entry) => entry.id === cat.id)?.amount;
+      const amount = summary.categories?.find((entry) => entry.id === cat.id)?.amount || 0;
+      return allocation > 0 ? amount / allocation : 0;
+    });
+    const alertCard = leaf('超支预警监控')?.closest('.rounded-2xl');
+    if (alertCard) {
+      const walker = document.createTreeWalker(alertCard, NodeFilter.SHOW_TEXT); let node;
+      while ((node = walker.nextNode())) node.textContent = node.textContent
+        .replace('1 类待关注', `${alerts.filter((value) => value >= .8).length} 类待关注`)
+        .replace('3 个临近', `${alerts.filter((value) => value >= .8 && value < 1).length} 个临近`)
+        .replace('0 个爆表', `${alerts.filter((value) => value >= 1).length} 个爆表`);
+      const toggle = alertCard.querySelector('input[type="checkbox"]');
+      if (toggle && !signedIn) { toggle.checked = local('budgetAlerts', true); toggle.addEventListener('change', () => saveLocal('budgetAlerts', toggle.checked)); }
+    }
     const title = $$('span').find((n) => n.textContent.includes('月月度总预算'));
     if (title) title.textContent = `${Number(month.slice(5))}月月度总预算`;
     const topCard = title?.closest('.rounded-2xl');
@@ -309,7 +390,7 @@
       const daysLeft = month === today().slice(0, 7) ? Math.max(1, new Date(Number(month.slice(0, 4)), Number(month.slice(5)), 0).getDate() - Number(today().slice(8)) + 1) : new Date(Number(month.slice(0, 4)), Number(month.slice(5)), 0).getDate();
       const dailyAmount = remaining == null ? '未设置' : money(Math.max(0, remaining) / daysLeft);
       const walker = document.createTreeWalker(dailyCard, NodeFilter.SHOW_TEXT);
-      let node; while ((node = walker.nextNode())) node.textContent = node.textContent.replace('¥78.20', dailyAmount).replace('余 13 天', `余 ${daysLeft} 天`).replace('昨日支出 ¥52.00', `本月已支出 ${money(spent)}`).replace('比建议少 ¥26.20，存钱节奏超棒👍', '按数据库账单实时计算');
+      let node; while ((node = walker.nextNode())) node.textContent = node.textContent.replace('¥78.20', dailyAmount).replace('余 13 天', `余 ${daysLeft} 天`).replace('昨日支出 ¥52.00', `本月已支出 ${money(spent)}`).replace('比建议少 ¥26.20，存钱节奏超棒👍', `按${signedIn ? '数据库' : '本机'}账单实时计算`);
     }
     const sectionNode = $$('section').find((n) => n.querySelector('h2')?.textContent.includes('分类月度预算明细'));
     if (!sectionNode) return;
@@ -326,7 +407,8 @@
     const template = grid?.querySelector('.rounded-2xl')?.cloneNode(true);
     if (grid) grid.replaceChildren();
     const summaryPanel = document.createElement('div'); summaryPanel.className = 'cloud-native-section';
-    summaryPanel.textContent = `已支出 ${money(spent)} · 剩余可支配 ${remaining == null ? '未设置' : money(remaining)} · 日可支配 ${remaining == null ? '未设置' : money(Math.max(0, remaining) / Math.max(1, new Date(Number(month.slice(0,4)), Number(month.slice(5)), 0).getDate()))}`;
+    const daysLeft = month === today().slice(0, 7) ? Math.max(1, new Date(Number(month.slice(0,4)), Number(month.slice(5)), 0).getDate() - Number(today().slice(8)) + 1) : new Date(Number(month.slice(0,4)), Number(month.slice(5)), 0).getDate();
+    summaryPanel.textContent = `已支出 ${money(spent)} · 剩余可支配 ${remaining == null ? '未设置' : money(remaining)} · 日可支配 ${remaining == null ? '未设置' : money(Math.max(0, remaining) / daysLeft)}`;
     sectionNode.prepend(summaryPanel);
     for (const cat of categories.categories.filter((c) => c.type === 'expense')) {
       const allocation = budget.categories.find((x) => x.id === cat.id)?.amount;
@@ -345,6 +427,7 @@
       $$('*', tile).filter((n) => !n.children.length).forEach((n) => {
         if (n.textContent.trim() === '81.3%') n.textContent = `${percent.toFixed(1)}%`;
         if (n.textContent.includes('已达 80% 警戒线')) n.textContent = allocation == null ? '尚未设置预算' : percent >= 100 ? '已超出预算' : percent >= 80 ? '已达 80% 警戒线' : '额度正常';
+        if (n.textContent.includes('已超 80% 警戒线')) n.textContent = allocation == null ? '尚未设置预算' : percent >= 100 ? '已超出预算' : percent >= 80 ? '已达 80% 警戒线' : '额度正常';
       });
       const edit = tile.querySelector('button[title="修改预算"]') || document.createElement('button');
       if (!edit.parentElement) { edit.type = 'button'; edit.textContent = '✎ 修改预算'; tile.append(edit); }
@@ -367,7 +450,7 @@
       const days = Math.max(1, new Date(Number(month.slice(0, 4)), Number(month.slice(5)), 0).getDate());
       if ($('#preview-balance')) $('#preview-balance').textContent = money(remaining);
       if ($('#preview-daily')) $('#preview-daily').textContent = money(Math.max(0, remaining) / days);
-      preview.textContent = `数据库本月支出 ${money(summary.expense)} · 按新预算预计结存 ${money(summary.income - amount)}`;
+      preview.textContent = `${signedIn ? '数据库' : '本机'}本月支出 ${money(summary.expense)} · 按新预算预计结存 ${money(summary.income - amount)}`;
     };
     input.addEventListener('input', calculate); calculate();
     $('#confirm-btn')?.addEventListener('click', (event) => {
@@ -386,7 +469,11 @@
     while ((textNode = textNodes.nextNode())) textNode.textContent = textNode.textContent
       .replace('¥204.85', money(summary.expense / Math.max(1, elapsed)))
       .replace('储蓄率 72.1%', `储蓄率 ${savingsRate}%`)
-      .replace('12.4% 比上月减少，很自律', '按数据库账单统计')
+      .replace('12.4% 比上月减少，很自律', `按${signedIn ? '数据库' : '本机'}账单统计`)
+      .replace('-12.4%', '按账单统计')
+      .replace('比上月减少，很自律', '按本月账单统计')
+      .replace('主职 + 稿费', '本月账单')
+      .replace('完成度 100%', '按实际收入统计')
       .replace('今日已自动核销结余', '数据已同步');
     const panel = $$('div.lg\\:col-span-6').find((n) => n.querySelector('h2')?.textContent.includes('支出分类占比'));
     if (panel) {
@@ -470,8 +557,16 @@
       }
       trend.append(chart);
     }
-    const exportButton = $$('button').find((button) => button.textContent.includes('导出每日统计 CSV'));
-    if (exportButton) {
+    const exportButton = $$('button').find((button) => button.textContent.includes('导出每日统计 CSV') || button.textContent.includes('导出为手账卡片'));
+    if (exportButton && !signedIn) {
+      exportButton.textContent = '导出本机统计 CSV';
+      exportButton.onclick = () => {
+        const lines = ['\ufeff日期,类型,分类,金额,备注', ...records.records.map((item) => [item.date, item.type === 'expense' ? '支出' : '收入', item.category, item.amount, item.note || ''].map((value) => `"${String(value).replaceAll('"', '""')}"`).join(','))];
+        const url = URL.createObjectURL(new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8' }));
+        const link = document.createElement('a'); link.href = url; link.download = `本机统计-${month}.csv`; link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
+      };
+    }
+    if (exportButton && signedIn) {
       exportButton.textContent = '导出统计 Excel';
       exportButton.addEventListener('click', (event) => {
         event.preventDefault(); event.stopImmediatePropagation();
@@ -492,10 +587,11 @@
     if (confirm) confirm.addEventListener('click', (event) => { event.preventDefault(); event.stopImmediatePropagation(); safe(async () => { await req('/password', 'PUT', { oldPassword: old.value, newPassword: next.value }); status('密码已更新'); $('#modal-change-pwd')?.classList.add('hidden'); }); }, true);
   }
   async function logout() {
-    $$('button').filter((b) => b.textContent.includes('确认退出')).forEach((button) => button.addEventListener('click', (event) => { event.preventDefault(); event.stopImmediatePropagation(); safe(async () => { await api.logout(); localStorage.removeItem('pj.session'); localStorage.removeItem('pj.profile'); closeTo('landing.html'); }); }, true));
+    $$('button').filter((b) => b.textContent.includes('确认退出')).forEach((button) => button.addEventListener('click', (event) => { event.preventDefault(); event.stopImmediatePropagation(); safe(async () => { await api.logout().catch(() => {}); localStorage.removeItem('pj.session'); localStorage.removeItem('pj.profile'); closeTo('landing.html'); }); }, true));
   }
   safe(async () => {
-    await syncProfile();
+    if (signedIn) await syncProfile();
+    else syncGuestProfile();
     if (page === 'record.html') await record();
     if (page.startsWith('bills')) await bills();
     if (page === 'budget.html') await budget();

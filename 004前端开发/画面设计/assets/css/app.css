@@ -51,6 +51,10 @@
 .app-care .font-body-sm{font-size:15px!important}
 .app-care .font-label-md{font-size:15px!important}
 .app-care .font-label-lg{font-size:17px!important}
-.app-avatar{object-fit:cover;border-radius:50%}
+.app-avatar-frame{flex:none!important;display:flex;align-items:center;justify-content:center;overflow:hidden;border-radius:50%;aspect-ratio:1/1}
+.app-avatar-frame[class~="w-8"],#header-user-avatar.app-avatar-frame{width:32px!important;height:32px!important;min-width:32px;min-height:32px;max-width:32px;max-height:32px}
+.app-avatar-frame[class~="w-9"],#sidebar-user-avatar.app-avatar-frame{width:36px!important;height:36px!important;min-width:36px;min-height:36px;max-width:36px;max-height:36px}
+.app-avatar-frame>.app-avatar{display:block;width:100%!important;height:100%!important;min-width:0;min-height:0;object-fit:cover;object-position:center;border-radius:50%}
+header #header-user-avatar,header .w-8.h-8.rounded-full.bg-primary:has(.material-symbols-outlined){display:none!important}
 nav [aria-current=page][data-path]{background:#fff0f5!important;color:#9b3f5a!important;font-weight:700!important;box-shadow:0 2px 10px #ff8fab33}
 @media(max-width:767px){.app-date-wallet{grid-template-columns:1fr}.app-dialog__card{padding:18px}.app-record-list{margin:12px}}

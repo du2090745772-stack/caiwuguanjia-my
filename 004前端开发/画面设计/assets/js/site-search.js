@@ -12,6 +12,7 @@
   input.parentElement.append(box);
   let records = [];
   if (window.AuthApi?.isSignedIn()) window.AuthApi.data('/export').then((data) => { records = data.records || []; }).catch(() => {});
+  else { try { records = JSON.parse(localStorage.getItem('pj.records') || '[]'); if (!Array.isArray(records)) records = []; } catch { records = []; } }
   const open = (title, url, hint, period) => {
     const button = document.createElement('button'); button.type = 'button';
     const strong = document.createElement('strong'); strong.textContent = title;

@@ -99,6 +99,11 @@
 
   const session = () => read('auth', null);
   const isSignedIn = () => Boolean(session()?.access_token);
+  /* 游客入口只切换身份，不清理本机账单、分类或预算。 */
+  function enterGuest() {
+    drop('auth');
+    drop('session');
+  }
 
   /* 只在本机留 Token 与用户名：账单仍走原有 pj.records，登录不改动任何本机数据
      （ACC-02 数据迁移规则3：迁移完成前不删本机数据）。 */
@@ -159,5 +164,5 @@
     }
   }
 
-  window.AuthApi = { API_BASE, register, login, refresh, logout, data, session, isSignedIn, ApiFailure };
+  window.AuthApi = { API_BASE, register, login, refresh, logout, enterGuest, data, session, isSignedIn, ApiFailure };
 })();
